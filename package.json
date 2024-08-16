@@ -17,6 +17,10 @@
     "web-vitals": "^2.1.4",
     "@xyflow/react": "^12.1.0"
   },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
   "scripts": {
     "start": "npm install & react-scripts start",
     "build": "react-scripts build",
