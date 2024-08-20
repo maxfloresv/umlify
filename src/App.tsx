@@ -1,25 +1,29 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   ReactFlow,
   Background,
   Controls,
   Panel,
   Edge,
-  Node
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+  Node,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
+import UMLNode from "./model/UMLNode";
+import ConcreteClass from "./model/ConcreteClass";
 
 const INITIAL_NODES: Node[] = [];
 const INITIAL_EDGES: Edge[] = [];
 
 function App() {
-  const [nodes, setNodes] = useState<Node[]>(INITIAL_NODES);
+  //const [nodes, setNodes] = useState<Node[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
+  const [nodes, setNodes] = useState<UMLNode[]>([]);
 
   function handleAddNode() {
     const id = nodes.length;
+    console.log(id);
     // Minimum separation between the nodes and the canvas' borders.
     const indent = 20;
 
@@ -35,27 +39,28 @@ function App() {
     const y_fixed = Math.floor(x_fixed / canvas_broke_width) * y_sep + indent;
 
     // TODO: Search for node width
-    const _ = Math.floor(canvas_broke_width / x_fixed)
+    const _ = Math.floor(canvas_broke_width / x_fixed);
 
-    const newNode: Node[] = [
+    /*const newNode: Node[] = [
       {
         id: String(id),
         position: { x: x_fixed, y: y_fixed },
-        data: { label: `Nodo ${id}` }
-      }
+        data: { label: `Nodo ${id}` },
+      },
     ];
 
-    setNodes([...nodes, ...newNode]);
+    setNodes([...nodes, ...newNode]);*/
+    const newNode = new ConcreteClass(id, x_fixed, y_fixed);
+    setNodes([...nodes, ...[newNode]]);
   }
 
   return (
-    <div style={{ height: 700 }}>
-      <ReactFlow nodes={nodes} edges={edges}>
-        <Panel
-          style={{ backgroundColor: "white" }}
-          position="top-right"
-        >
-          <Button variant="outlined" onClick={handleAddNode}>Añadir nodo</Button>
+    <div style={{ height: "100%" }}>
+      <ReactFlow nodes={nodes.map((n) => n.getNode())} edges={edges}>
+        <Panel style={{ backgroundColor: "white" }} position="top-right">
+          <Button variant="outlined" onClick={handleAddNode}>
+            Añadir nodo
+          </Button>
         </Panel>
         <Background />
         <Controls />
