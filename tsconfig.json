@@ -18,7 +18,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "paths": {
+      "@uml-components/*": [
+        "./src/components/*"
+      ],
+      "@uml-model/*": [
+        "./src/model/*"
+      ],
+    }
   },
   "include": [
     "src"
