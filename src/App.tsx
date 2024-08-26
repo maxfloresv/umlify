@@ -1,25 +1,68 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
   Controls,
   Panel,
-  Edge,
-  Node,
+  type Edge,
+  type OnNodesChange,
+  type OnEdgesChange,
+  type OnConnect,
+  applyEdgeChanges,
+  applyNodeChanges,
+  addEdge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import Button from "@mui/material/Button";
-import UMLNode from "./model/UMLNode";
+import type UMLNode from "./model/UMLNode";
 import ConcreteClass from "./model/ConcreteClass";
+import AbstractClass from "./model/AbstractClass";
+import Trait from "./model/Trait";
 
-const INITIAL_NODES: Node[] = [];
+import StyledNode from "./components/StyledNode";
+
+import Button from "@mui/material/Button";
+
+const INITIAL_NODES: UMLNode[] = [];
 const INITIAL_EDGES: Edge[] = [];
 
 function App() {
-  //const [nodes, setNodes] = useState<Node[]>(INITIAL_NODES);
+  const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
-  const [nodes, setNodes] = useState<UMLNode[]>([]);
+
+  // Posiblemente esto de problemas. En la documentación, el callback devuelve applyNodeChanges.
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setNodes((nodes) => {
+      const nodeList = nodes.map((n) => n.getNode());
+      // We can only apply changes to a Node[] type.
+      const modifiedNodes = applyNodeChanges(changes, nodeList);
+
+      // Update each node with its correspondant modified node.
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].updateNode(modifiedNodes[i]);
+      }
+      
+      console.log(nodes);
+
+      return [...nodes];
+    }),
+    [setNodes],
+  );
+
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setEdges((edges) => applyEdgeChanges(changes, edges)),
+    [setEdges],
+  );
+  const onConnect: OnConnect = useCallback(
+    (connection) => setEdges((edges) => addEdge(connection, edges)),
+    [setEdges],
+  );
+
+  const nodeTypes = useMemo(() => ({
+    abstractClass: StyledNode,
+    concreteClass: StyledNode,
+    trait: StyledNode
+  }), []);
 
   function handleAddNode() {
     const id = nodes.length;
@@ -38,25 +81,31 @@ function App() {
     const x_fixed = indent + x_sep * id;
     const y_fixed = Math.floor(x_fixed / canvas_broke_width) * y_sep + indent;
 
-    // TODO: Search for node width
-    const _ = Math.floor(canvas_broke_width / x_fixed);
+    const methods: Object = {
+      "private": [{ 'characters': 'ArrayBuffer[Character]' }]
+    };
 
-    /*const newNode: Node[] = [
-      {
-        id: String(id),
-        position: { x: x_fixed, y: y_fixed },
-        data: { label: `Nodo ${id}` },
-      },
-    ];
+    const attributes: Object = {
+      "protected": [{ 'isDefeated': 'Boolean' }, { 'addCharacter': 'Unit' }]
+    };
 
-    setNodes([...nodes, ...newNode]);*/
-    const newNode = new ConcreteClass(id, x_fixed, y_fixed);
-    setNodes([...nodes, ...[newNode]]);
+    const newNode = new ConcreteClass(id, "Party", methods, attributes, x_fixed, y_fixed);
+    const node2 = new AbstractClass(id + 1, "AbstractCharacter", methods, attributes, x_fixed + x_sep, y_fixed + y_sep);
+    const node3 = new Trait(id + 2, "Character", methods, attributes, x_fixed + x_sep * 2, y_fixed + y_sep * 2);
+    setNodes((prevNodes) => [...prevNodes, newNode, node2, node3]);
   }
 
   return (
     <div style={{ height: "100%" }}>
-      <ReactFlow nodes={nodes.map((n) => n.getNode())} edges={edges}>
+      <ReactFlow 
+        nodes={nodes.map((n) => n.getNode())}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView={true}      
+      >
         <Panel style={{ backgroundColor: "white" }} position="top-right">
           <Button variant="outlined" onClick={handleAddNode}>
             Añadir nodo
