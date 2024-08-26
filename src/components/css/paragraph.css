@@ -1,0 +1,20 @@
+.title-paragraph {
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.abstract-paragraph {
+  font-weight: bold;
+  font-style: italic;
+  text-align: center;
+}
+
+.trait-paragraph {
+  font-weight: bold;
+  text-align: center;
+}
+
+.concrete-paragraph {
+  font-weight: bold;
+  text-align: center;
+}
