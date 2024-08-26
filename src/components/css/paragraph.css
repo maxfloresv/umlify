@@ -9,12 +9,7 @@
   text-align: center;
 }
 
-.trait-paragraph {
-  font-weight: bold;
-  text-align: center;
-}
-
-.concrete-paragraph {
+.trait-paragraph, .concrete-paragraph {
   font-weight: bold;
   text-align: center;
 }
