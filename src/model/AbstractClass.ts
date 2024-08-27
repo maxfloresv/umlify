@@ -1,28 +1,38 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
+import { FieldType, MethodType } from "./UMLNode";
 
-class AbstractClass extends UMLAbstractClass {
-  id: number;
+export type AbstractClassDataType = {
   name: string;
-  methods: Object;
-  attributes: Object;
-  node: Node;
+  methods: MethodType[];
+  fields: FieldType[];
+  styleClass: string;
+};
+class AbstractClass extends UMLAbstractClass {
+  node: Node<AbstractClassDataType, "abstractClass">;
 
-  constructor(id: number, name: string, methods: Object, attributes: Object, x: number, y: number) {
-    super(x, y);
+  constructor(
+    id: number,
+    name: string,
+    methods: MethodType[],
+    fields: FieldType[],
+    x: number,
+    y: number
+  ) {
+    super(id, name, methods, fields, x, y);
     this.name = name;
     this.id = id;
     this.methods = methods;
-    this.attributes = attributes;
+    this.fields = fields;
     this.node = {
       id: String(this.id),
-      type: 'abstractClass',
+      type: "abstractClass",
       position: { x: this.x, y: this.y },
-      data: { 
-        name: this.name, 
-        methods: this.methods, 
-        attributes: this.attributes,
-        styleClass: 'abstract-paragraph',
+      data: {
+        name: this.name,
+        methods: this.methods,
+        fields: this.fields,
+        styleClass: "abstract-paragraph",
       },
     };
   }

@@ -1,29 +1,29 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
+import { FieldType, MethodType } from "./UMLNode";
 
 class Trait extends UMLAbstractClass {
-  id: number;
-  name: string;
-  methods: Object;
-  attributes: Object;
-  node: Node;
+  node: Node<{}, "trait">;
 
-  constructor(id: number, name: string, methods: Object, attributes: Object, x: number, y: number) {
-    super(x, y);
-    this.name = name;
-    this.id = id;
-    this.methods = methods;
-    this.attributes = attributes;
+  constructor(
+    id: number,
+    name: string,
+    methods: MethodType[],
+    fields: FieldType[],
+    x: number,
+    y: number
+  ) {
+    super(id, name, methods, fields, x, y);
     this.node = {
       id: String(this.id),
-      type: 'trait',
+      type: "trait",
       position: { x: this.x, y: this.y },
-      data: { 
-        name: this.name, 
-        methods: this.methods, 
-        attributes: this.attributes,
-        styleClass: 'trait-paragraph',
-        additionalText: "«interface»"
+      data: {
+        name: this.name,
+        methods: this.methods,
+        fields: this.fields,
+        styleClass: "trait-paragraph",
+        additionalText: "«interface»",
       },
     };
   }

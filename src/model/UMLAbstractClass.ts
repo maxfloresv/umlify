@@ -1,17 +1,28 @@
 import { Node } from "@xyflow/react";
-import UMLNode from "./UMLNode";
+import UMLNode, { FieldType, MethodType } from "./UMLNode";
 
 abstract class UMLAbstractClass implements UMLNode {
-  abstract id: number;
-  abstract name: string;
+  id: number;
+  name: string;
   abstract node: Node;
-  abstract methods: Object;
-  abstract attributes: Object;
+  methods: MethodType[];
+  fields: FieldType[];
   protected extends: UMLNode[] = [];
   x: number;
   y: number;
 
-  constructor(x: number, y: number) {
+  constructor(
+    id: number,
+    name: string,
+    methods: MethodType[],
+    fields: FieldType[],
+    x: number,
+    y: number
+  ) {
+    this.name = name;
+    this.id = id;
+    this.methods = methods;
+    this.fields = fields;
     this.x = x;
     this.y = y;
   }
@@ -28,8 +39,8 @@ abstract class UMLAbstractClass implements UMLNode {
   updateNode: (newNode: Node) => void = (newNode) => {
     this.x = newNode.position.x;
     this.y = newNode.position.y;
-    this.node = newNode; 
-  }
+    this.node = newNode;
+  };
 }
 
 export default UMLAbstractClass;

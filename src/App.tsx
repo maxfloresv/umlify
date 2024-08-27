@@ -11,6 +11,7 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
   addEdge,
+  NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -22,6 +23,7 @@ import Trait from "./model/Trait";
 import StyledNode from "./components/StyledNode";
 
 import Button from "@mui/material/Button";
+import { FieldType, MethodType } from "./model/UMLNode";
 
 const INITIAL_NODES: UMLNode[] = [];
 const INITIAL_EDGES: Edge[] = [];
@@ -32,37 +34,39 @@ function App() {
 
   // Posiblemente esto de problemas. En la documentación, el callback devuelve applyNodeChanges.
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nodes) => {
-      const nodeList = nodes.map((n) => n.getNode());
-      // We can only apply changes to a Node[] type.
-      const modifiedNodes = applyNodeChanges(changes, nodeList);
+    (changes) =>
+      setNodes((nodes) => {
+        const nodeList = nodes.map((n) => n.getNode());
+        // We can only apply changes to a Node[] type.
+        const modifiedNodes = applyNodeChanges(changes, nodeList);
 
-      // Update each node with its correspondant modified node.
-      for (let i = 0; i < nodes.length; i++) {
-        nodes[i].updateNode(modifiedNodes[i]);
-      }
-      
-      console.log(nodes);
+        // Update each node with its correspondant modified node.
+        for (let i = 0; i < nodes.length; i++) {
+          nodes[i].updateNode(modifiedNodes[i]);
+        }
 
-      return [...nodes];
-    }),
-    [setNodes],
+        return [...nodes];
+      }),
+    [setNodes]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => setEdges((edges) => applyEdgeChanges(changes, edges)),
-    [setEdges],
+    [setEdges]
   );
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges],
+    [setEdges]
   );
 
-  const nodeTypes = useMemo(() => ({
-    abstractClass: StyledNode,
-    concreteClass: StyledNode,
-    trait: StyledNode
-  }), []);
+  const nodeTypes = useMemo(
+    () => ({
+      abstractClass: StyledNode,
+      concreteClass: StyledNode,
+      trait: StyledNode,
+    }),
+    []
+  );
 
   function handleAddNode() {
     const id = nodes.length;
@@ -82,29 +86,72 @@ function App() {
     const y_fixed = Math.floor(x_fixed / canvas_broke_width) * y_sep + indent;
 
     const methods: Object = {
-      "private": [{ 'characters': 'ArrayBuffer[Character]' }]
+      private: [{ characters: "ArrayBuffer[Character]" }],
     };
+
+    const methods0: MethodType[] = [
+      {
+        name: "characters",
+        domType: [],
+        codType: "ArrayBuffer[Character]",
+        visibility: "private",
+        abstract: false,
+      },
+    ];
+    const attributes0: FieldType[] = [
+      {
+        name: "isDefeated",
+        type: "Boolean",
+        visibility: "protected",
+      },
+      {
+        name: "adCharacter",
+        type: "Unit",
+        visibility: "private",
+      },
+    ];
 
     const attributes: Object = {
-      "protected": [{ 'isDefeated': 'Boolean' }, { 'addCharacter': 'Unit' }]
+      protected: [{ isDefeated: "Boolean" }, { addCharacter: "Unit" }],
     };
 
-    const newNode = new ConcreteClass(id, "Party", methods, attributes, x_fixed, y_fixed);
-    const node2 = new AbstractClass(id + 1, "AbstractCharacter", methods, attributes, x_fixed + x_sep, y_fixed + y_sep);
-    const node3 = new Trait(id + 2, "Character", methods, attributes, x_fixed + x_sep * 2, y_fixed + y_sep * 2);
+    const newNode = new ConcreteClass(
+      id,
+      "Party",
+      methods0,
+      attributes0,
+      x_fixed,
+      y_fixed
+    );
+    const node2 = new AbstractClass(
+      id + 1,
+      "AbstractCharacter",
+      methods0,
+      attributes0,
+      x_fixed + x_sep,
+      y_fixed + y_sep
+    );
+    const node3 = new Trait(
+      id + 2,
+      "Character",
+      methods0,
+      attributes0,
+      x_fixed + x_sep * 2,
+      y_fixed + y_sep * 2
+    );
     setNodes((prevNodes) => [...prevNodes, newNode, node2, node3]);
   }
 
   return (
     <div style={{ height: "100%" }}>
-      <ReactFlow 
+      <ReactFlow
         nodes={nodes.map((n) => n.getNode())}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        fitView={true}      
+        fitView={true}
       >
         <Panel style={{ backgroundColor: "white" }} position="top-right">
           <Button variant="outlined" onClick={handleAddNode}>
