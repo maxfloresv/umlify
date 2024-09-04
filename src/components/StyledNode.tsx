@@ -1,13 +1,12 @@
 import { Handle, Node, NodeProps, Position } from "@xyflow/react";
 import "./css/paragraph.css";
 import { FieldType, MethodType, Visibility } from "../model/UMLNode";
-import { ComponentType } from "react";
-import type { AbstractClassDataType } from "../model/AbstractClass";
+import type { CustomNodeData } from "../model/UMLNode";
 
-//TODO: fix
-type Foo = Node<AbstractClassDataType | any, "Node data">;
+type ClassType = "trait" | "concreteClass" | "abstractClass";
+type CustomNode = Node<CustomNodeData, ClassType>;
 
-function StyledNode({ data }: NodeProps<Foo>) {
+function StyledNode({ data }: NodeProps<CustomNode>) {
   const drawVisibility = (v: Visibility | null) => {
     switch (v) {
       case "public":
@@ -17,10 +16,10 @@ function StyledNode({ data }: NodeProps<Foo>) {
       case "private":
         return "-";
       default:
-        return "";
+        return "?";
     }
   };
-  //const data: any = node.data; //TODO: address this!
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -39,6 +38,7 @@ function StyledNode({ data }: NodeProps<Foo>) {
           )}
           <p className={data.styleClass}>{data.name}</p>
         </div>
+
         <div style={{ border: "1px solid black", width: "100%" }}>
           {data.fields.map((field: FieldType) => {
             return (
@@ -48,6 +48,7 @@ function StyledNode({ data }: NodeProps<Foo>) {
             );
           })}
         </div>
+
         <div style={{ border: "1px solid black", width: "100%" }}>
           {data.methods.map((method: MethodType) => {
             return (
@@ -56,7 +57,7 @@ function StyledNode({ data }: NodeProps<Foo>) {
                 {"("}
                 {method.domType.map((t) => t).join(", ")}
                 {")"}
-                {method.codType ? ":" + method.codType : ""}
+                {method.codType ? ": " + method.codType : ""}
               </p>
             );
           })}
