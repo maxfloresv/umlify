@@ -18,7 +18,8 @@
     "@xyflow/react": "^12.1.0",
     "@mui/material": "^5.16.7",
     "@emotion/react": "^11.13.0",
-    "@emotion/styled": "^11.13.0"
+    "@emotion/styled": "^11.13.0",
+    "@mui/system": "^6.0.2"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
