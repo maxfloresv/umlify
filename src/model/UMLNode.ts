@@ -14,6 +14,13 @@ export interface FieldType {
   type: Type;
   visibility: Visibility | null;
 }
+export type CustomNodeData = {
+  name: string;
+  methods: MethodType[];
+  fields: FieldType[];
+  styleClass: string;
+  additionalText: string | null;
+}
 
 export default interface UMLNode {
   id: number;

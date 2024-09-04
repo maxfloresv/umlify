@@ -1,9 +1,9 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
-import { FieldType, MethodType } from "./UMLNode";
+import { CustomNodeData, FieldType, MethodType } from "./UMLNode";
 
 class ConcreteClass extends UMLAbstractClass {
-  node: Node<{}, "concreteClass">;
+  node: Node<CustomNodeData, "concreteClass">;
 
   constructor(
     id: number,
@@ -23,6 +23,7 @@ class ConcreteClass extends UMLAbstractClass {
         methods: this.methods,
         fields: this.fields,
         styleClass: "concrete-paragraph",
+        additionalText: null
       },
     };
   }

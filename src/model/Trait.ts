@@ -1,9 +1,9 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
-import { FieldType, MethodType } from "./UMLNode";
+import { CustomNodeData, FieldType, MethodType } from "./UMLNode";
 
 class Trait extends UMLAbstractClass {
-  node: Node<{}, "trait">;
+  node: Node<CustomNodeData, "trait">;
 
   constructor(
     id: number,

@@ -1,15 +1,9 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
-import { FieldType, MethodType } from "./UMLNode";
+import { CustomNodeData, FieldType, MethodType } from "./UMLNode";
 
-export type AbstractClassDataType = {
-  name: string;
-  methods: MethodType[];
-  fields: FieldType[];
-  styleClass: string;
-};
 class AbstractClass extends UMLAbstractClass {
-  node: Node<AbstractClassDataType, "abstractClass">;
+  node: Node<CustomNodeData, "abstractClass">;
 
   constructor(
     id: number,
@@ -33,6 +27,7 @@ class AbstractClass extends UMLAbstractClass {
         methods: this.methods,
         fields: this.fields,
         styleClass: "abstract-paragraph",
+        additionalText: null,
       },
     };
   }
