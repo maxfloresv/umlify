@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -13,7 +13,9 @@ import {
   addEdge,
   NodeTypes,
 } from "@xyflow/react";
+
 import "@xyflow/react/dist/style.css";
+import ContextMenu from "./styles/menu";
 
 import type UMLNode from "./model/UMLNode";
 import ConcreteClass from "./model/ConcreteClass";
@@ -28,11 +30,30 @@ import { FieldType, MethodType } from "./model/UMLNode";
 const INITIAL_NODES: UMLNode[] = [];
 const INITIAL_EDGES: Edge[] = [];
 
+interface Point {
+  x: number;
+  y: number;
+};
+
 function App() {
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
 
-  // Posiblemente esto de problemas. En la documentación, el callback devuelve applyNodeChanges.
+  const [clicked, setClicked] = useState<Boolean>(false);
+  const [points, setPoints] = useState<Point>({
+    x: 0,
+    y: 0,
+  });
+
+  // https://blog.logrocket.com/creating-react-context-menu/ 
+  useEffect(() => {
+    const handleClick = () => setClicked(false);
+    window.addEventListener("click", handleClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+    };
+  }, []);
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes) =>
       setNodes((nodes) => {
@@ -92,7 +113,7 @@ function App() {
     const methods0: MethodType[] = [
       {
         name: "characters",
-        domType: [],
+        domType: ["Number", "Number", "String"],
         codType: "ArrayBuffer[Character]",
         visibility: "private",
         abstract: false,
@@ -105,15 +126,11 @@ function App() {
         visibility: "protected",
       },
       {
-        name: "adCharacter",
+        name: "addCharacter",
         type: "Unit",
         visibility: "private",
       },
     ];
-
-    const attributes: Object = {
-      protected: [{ isDefeated: "Boolean" }, { addCharacter: "Unit" }],
-    };
 
     const newNode = new ConcreteClass(
       id,
@@ -143,24 +160,40 @@ function App() {
   }
 
   return (
-    <div style={{ height: "100%" }}>
-      <ReactFlow
-        nodes={nodes.map((n) => n.getNode())}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView={true}
-      >
-        <Panel style={{ backgroundColor: "white" }} position="top-right">
-          <Button variant="outlined" onClick={handleAddNode}>
-            Añadir nodo
-          </Button>
-        </Panel>
-        <Background />
-        <Controls />
-      </ReactFlow>
+    <div onContextMenu={(e) => {
+      e.preventDefault();
+      setClicked(true);
+      setPoints({ x: e.pageX, y: e.pageY });
+    }} style={{ height: "100%" }}>
+      <>
+        {clicked && (
+          <ContextMenu top={points.y} left={points.x}>
+            <ul>
+              <li>Edit</li>
+              <li>Copy</li>
+              <li>Delete</li>
+            </ul>
+          </ContextMenu>
+        )}
+
+        <ReactFlow
+          nodes={nodes.map((n) => n.getNode())}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView={true}
+        >
+          <Panel style={{ backgroundColor: "white" }} position="top-right">
+            <Button variant="outlined" onClick={handleAddNode}>
+              Añadir nodo
+            </Button>
+          </Panel>
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </>
     </div>
   );
 }
