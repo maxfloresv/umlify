@@ -6,10 +6,11 @@ interface ContextMenuProps {
 }
 
 const ContextMenu = styled('div')<ContextMenuProps>(({ top, left }) => ({
+  zIndex: 99999,
   position: 'absolute',
   width: '200px',
   backgroundColor: '#383838',
-  borderRadius: '5px',
+  borderRadius: '2px',
   boxSizing: 'border-box',
   top: `${top}px`,
   left: `${left}px`,
@@ -20,7 +21,9 @@ const ContextMenu = styled('div')<ContextMenuProps>(({ top, left }) => ({
     listStyle: 'none',
   },
   '& ul li': {
-    padding: '18px 12px'
+    fontSize: '13px',
+    color: 'white',
+    padding: '12px 8px'
   },
   '& ul li:hover': {
     cursor: 'pointer',
