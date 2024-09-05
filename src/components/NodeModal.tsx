@@ -3,6 +3,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 import useNode from "../hooks/useNodeOperator";
 import useGlobalContext from "../hooks/useGlobalContext";
+import UMLNode from "../model/UMLNode";
+import Trait from "../model/Trait";
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -56,7 +58,21 @@ function NodeModal({ ctx }: { ctx: ReturnType<typeof useGlobalContext> }) {
         </div>
 
         <div style={{ width: '100%', alignItems: 'right' }}>
-          <Button onClick={() => ctx.setOpenNodeModal(false)}>
+          <Button onClick={() => {
+            // TODO: handle the ids...
+            const newNode: UMLNode = new Trait(
+              Math.floor(Math.random() * 99999),
+              ctx.nameNodeOperator,
+              ctx.methodsNodeOperator,
+              ctx.fieldsNodeOperator,
+              ctx.mouseCoordinate.x,
+              ctx.mouseCoordinate.y
+            );
+            ctx.setNodes((prevNodes) => [...prevNodes, newNode]);
+            // This node is no longer a "new node", so we delete it from the context.
+            ctx.setAddingNode(null); // is this necessary? no.
+            ctx.setOpenNodeModal(false)
+          }}>
             Guardar y cerrar
           </Button>
         </div>
