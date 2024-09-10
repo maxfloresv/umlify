@@ -30,6 +30,7 @@ function StyledNode({ data }: NodeProps<CustomNode>) {
           flexDirection: "column",
           alignItems: "flex-start",
           backgroundColor: "white",
+          minWidth: "200px",
         }}
       >
         <div style={{ border: "1px solid black", width: "100%" }}>
@@ -39,7 +40,7 @@ function StyledNode({ data }: NodeProps<CustomNode>) {
           <p className={data.styleClass}>{data.name}</p>
         </div>
 
-        <div style={{ border: "1px solid black", width: "100%" }}>
+        <div style={{ border: "1px solid black", minHeight: "35px", width: "100%" }}>
           {data.fields.map((field: FieldType) => {
             return (
               <p key={field.name}>
@@ -49,7 +50,7 @@ function StyledNode({ data }: NodeProps<CustomNode>) {
           })}
         </div>
 
-        <div style={{ border: "1px solid black", width: "100%" }}>
+        <div style={{ border: "1px solid black", minHeight: "35px", width: "100%" }}>
           {data.methods.map((method: MethodType) => {
             return (
               <p key={method.name}>
