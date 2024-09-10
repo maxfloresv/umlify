@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const useClick = () => {
+const useCanvasRightClick = () => {
   /** Whether the user has right-clicked the canvas. */
   const [rightClicked, setRightClicked] = useState<boolean>(false);
 
@@ -10,7 +10,14 @@ const useClick = () => {
     y: number;
   };
 
+  // This is absolute to the screen.
   const [mouseCoordinate, setMouseCoordinate] = useState<Point>({
+    x: 0,
+    y: 0,
+  });
+
+  // This is relative to the canvas.
+  const [relativeMouseCoordinate, setRelativeMouseCoordinate] = useState<Point>({
     x: 0,
     y: 0,
   });
@@ -19,8 +26,10 @@ const useClick = () => {
     rightClicked,
     setRightClicked,
     mouseCoordinate,
-    setMouseCoordinate
+    setMouseCoordinate,
+    relativeMouseCoordinate,
+    setRelativeMouseCoordinate
   };
 }
 
-export default useClick;
+export default useCanvasRightClick;
