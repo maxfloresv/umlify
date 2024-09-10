@@ -80,12 +80,27 @@ function App() {
   );
 
   return (
-    <div onContextMenu={(e) => {
+    <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
       e.preventDefault();
       ctx.setRightClicked(true);
-      ctx.setMouseCoordinate({ x: e.pageX, y: e.pageY });
+
+      const reactFlowBounds = ctx.reactFlowWrapper.current?.getBoundingClientRect();
+      // check if the dropped element is valid
+      if (!ctx.reactFlowInstance || !reactFlowBounds) {
+        return;
+      }
+
+      const position = ctx.reactFlowInstance.screenToFlowPosition({
+        x: e.clientX - reactFlowBounds.left,
+        y: e.clientY - reactFlowBounds.top
+      });
+
+      ctx.setRelativeMouseCoordinate(position);
+      ctx.setMouseCoordinate({ x: e.clientX, y: e.clientY });
     }} style={{ height: "100%" }}>
       <>
+        {/* TODO: Calculate position in function of the canvas zoom */}
+        {/* https://github.com/xyflow/xyflow/discussions/3209 */}
         {ctx.rightClicked && (
           <ContextMenu top={ctx.mouseCoordinate.y} left={ctx.mouseCoordinate.x}>
             <>
@@ -105,6 +120,7 @@ function App() {
           edges={ctx.edges}
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
+          onInit={ctx.setReactFlowInstance}
           /* onEdgesChange={onEdgesChange} */
           /* onConnect={onConnect} */
           fitView={true}
