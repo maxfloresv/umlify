@@ -1,6 +1,6 @@
-import { Edge } from "@xyflow/react";
+import { Edge, ReactFlowInstance } from "@xyflow/react";
 import UMLNode from "../model/UMLNode";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import useCanvasRightClick from "./useCanvasRightClick";
 import useNodeOperator from "./useNodeOperator";
 import useAddingNodeModal from "./useAddingNodeModal";
@@ -17,6 +17,12 @@ const useGlobalContext = () => {
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
 
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [
+    reactFlowInstance,
+    setReactFlowInstance
+  ] = useState<ReactFlowInstance | null>(null);
+
   const {
     openNodeModal,
     setOpenNodeModal,
@@ -29,6 +35,8 @@ const useGlobalContext = () => {
     setRightClicked,
     mouseCoordinate,
     setMouseCoordinate,
+    relativeMouseCoordinate,
+    setRelativeMouseCoordinate
   } = useCanvasRightClick();
 
   const {
@@ -63,6 +71,11 @@ const useGlobalContext = () => {
     removeFieldNodeOperator,
     addMethodNodeOperator,
     removeMethodNodeOperator,
+    reactFlowWrapper,
+    reactFlowInstance,
+    setReactFlowInstance,
+    relativeMouseCoordinate,
+    setRelativeMouseCoordinate
   };
 }
 
