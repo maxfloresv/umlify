@@ -26,7 +26,7 @@ function NodeModal({ ctx }: { ctx: ReturnType<typeof useGlobalContext> }) {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Añadiendo un nodo de tipo T
+          Añadiendo un nuevo trait
         </Typography>
         <div style={{ padding: '0 10px 0 0' }}>
           <TextField
@@ -36,24 +36,6 @@ function NodeModal({ ctx }: { ctx: ReturnType<typeof useGlobalContext> }) {
             label="Nombre"
             variant="standard"
           />
-        </div>
-
-        <div style={{ padding: '10px 0' }}>
-          <Typography variant="subtitle1">
-            Campos
-          </Typography>
-          <Button disabled variant="text" startIcon={<AddIcon />}>
-            Añadir nuevo campo
-          </Button>
-        </div>
-
-        <div style={{ padding: '10px 0' }}>
-          <Typography variant="subtitle1">
-            Métodos
-          </Typography>
-          <Button disabled variant="text" startIcon={<AddIcon />}>
-            Añadir nuevo método
-          </Button>
         </div>
 
         <div style={{ width: '100%', alignItems: 'right' }}>

@@ -3,6 +3,7 @@ import UMLNode from "../model/UMLNode";
 
 const useAddingNodeModal = () => {
   /** Whether the user has opened the node modal (i.e. clicked an option when right-clicked). */
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [openNodeModal, setOpenNodeModal] = useState<boolean>(false);
   /** The node that is being constructed by the user. */
   const [addingNode, setAddingNode] = useState<UMLNode | null>();
@@ -11,7 +12,9 @@ const useAddingNodeModal = () => {
     openNodeModal,
     setOpenNodeModal,
     addingNode,
-    setAddingNode
+    setAddingNode,
+    editMode,
+    setEditMode
   };
 };
 

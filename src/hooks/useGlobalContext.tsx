@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import useCanvasRightClick from "./useCanvasRightClick";
 import useNodeOperator from "./useNodeOperator";
 import useAddingNodeModal from "./useAddingNodeModal";
+import Trait from "../model/Trait";
 
 /**
  * The global store of states and functions/methods that are used across the application.
@@ -11,7 +12,9 @@ import useAddingNodeModal from "./useAddingNodeModal";
  */
 const useGlobalContext = () => {
   /** Nodes are the main elements of the diagram. They can be connected by edges. */
-  const INITIAL_NODES: UMLNode[] = [];
+  const INITIAL_NODES: UMLNode[] = [new Trait(1, "Trait", [], [
+    { name: "field", type: "Integer", visibility: "public" },
+  ], 0, 0)];
   const INITIAL_EDGES: Edge[] = [];
 
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
