@@ -123,7 +123,7 @@ function App() {
           onInit={ctx.setReactFlowInstance}
           /* onEdgesChange={onEdgesChange} */
           /* onConnect={onConnect} */
-          fitView={true}
+          fitView={false}
         >
           <Panel style={{ backgroundColor: "white" }} position="top-right">
             {/* This gotta be deleted in the final version */}
