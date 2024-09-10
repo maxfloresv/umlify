@@ -1,7 +1,6 @@
 import { Modal, Box, Typography, TextField, Button } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import useNode from "../hooks/useNodeOperator";
 import useGlobalContext from "../hooks/useGlobalContext";
 import UMLNode from "../model/UMLNode";
 import Trait from "../model/Trait";
@@ -65,8 +64,8 @@ function NodeModal({ ctx }: { ctx: ReturnType<typeof useGlobalContext> }) {
               ctx.nameNodeOperator,
               ctx.methodsNodeOperator,
               ctx.fieldsNodeOperator,
-              ctx.mouseCoordinate.x,
-              ctx.mouseCoordinate.y
+              ctx.relativeMouseCoordinate.x,
+              ctx.relativeMouseCoordinate.y
             );
             ctx.setNodes((prevNodes) => [...prevNodes, newNode]);
             // This node is no longer a "new node", so we delete it from the context.
