@@ -20,6 +20,10 @@ const useGlobalContext = () => {
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
 
+  const generateNodeId = () => {
+    return nodes.length + 1;
+  }
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [
     reactFlowInstance,
@@ -56,6 +60,7 @@ const useGlobalContext = () => {
   return {
     nodes,
     setNodes,
+    generateNodeId,
     edges,
     setEdges,
     openNodeModal,
