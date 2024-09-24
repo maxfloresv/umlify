@@ -1,5 +1,4 @@
 import { Modal, Box, Typography, TextField, Button } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
 
 import useGlobalContext from "../hooks/useGlobalContext";
 import UMLNode from "../model/UMLNode";
