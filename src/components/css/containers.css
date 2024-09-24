@@ -1,7 +1,21 @@
 .field-container, .method-container {
   border: 1px solid black;
-  min-height: 55px;
+  border-top: none;
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.title-container {
+  border: 1px solid black;
+  width: 100%;
+}
+
+.box-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: white;
+  min-width: 200px;
+  position: relative;
 }
