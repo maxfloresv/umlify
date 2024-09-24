@@ -31,12 +31,6 @@ import useGlobalContext from "./hooks/useGlobalContext";
 import Style from "@mui/system/style";
 import UMLNode from "./model/UMLNode";
 
-const createNodeTypes = (nodes: UMLNode[]): NodeTypes => ({
-  abstractClass: (props) => <StyledNode nodeList={nodes} node={props} />,
-  concreteClass: (props) => <StyledNode nodeList={nodes} node={props} />,
-  trait: (props) => <StyledNode nodeList={nodes} node={props} />
-});
-
 function App() {
   const ctx = useGlobalContext();
 
@@ -78,7 +72,12 @@ function App() {
   );*/
 
   /** Custom node styling under the StyledNode component. */
-  const nodeTypes: NodeTypes = useMemo(() => createNodeTypes(ctx.nodes), [ctx.nodes]);
+  // Empty dependences causes this to not rerender. 
+  const nodeTypes: NodeTypes = useMemo(() => ({
+    abstractClass: (props) => <StyledNode nodeList={ctx.nodes} node={props} />,
+    concreteClass: (props) => <StyledNode nodeList={ctx.nodes} node={props} />,
+    trait: (props) => <StyledNode nodeList={ctx.nodes} node={props} />
+  }), []);
 
   return (
     <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
