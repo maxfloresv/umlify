@@ -57,6 +57,11 @@ abstract class UMLAbstractClass implements UMLNode {
     this.fields = this.fields.filter((field) => field.name !== f.name);
     this.node.data.fields = this.fields;
   }
+  updateField: (f: FieldType, newField: FieldType) => void = (f, newField) => {
+    const index = this.fields.findIndex((field) => field.name === f.name);
+    this.fields[index] = newField;
+    this.node.data.fields = this.fields;
+  }
 }
 
 export default UMLAbstractClass;
