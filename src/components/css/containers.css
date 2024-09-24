@@ -19,3 +19,11 @@
   min-width: 200px;
   position: relative;
 }
+
+.field-text-edit-container {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  justify-content: space-between;
+  gap: 10px;
+}
