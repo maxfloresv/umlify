@@ -28,11 +28,13 @@ import StyledNode from "./components/StyledNode";
 
 /** Custom hooks imports */
 import useGlobalContext from "./hooks/useGlobalContext";
+import Style from "@mui/system/style";
+import UMLNode from "./model/UMLNode";
 
-const createNodeTypes = (ctx: ReturnType<typeof useGlobalContext>): NodeTypes => ({
-  abstractClass: StyledNode(ctx),
-  concreteClass: StyledNode(ctx),
-  trait: StyledNode(ctx),
+const createNodeTypes = (nodes: UMLNode[]): NodeTypes => ({
+  abstractClass: (props) => <StyledNode nodeList={nodes} node={props} />,
+  concreteClass: (props) => <StyledNode nodeList={nodes} node={props} />,
+  trait: (props) => <StyledNode nodeList={nodes} node={props} />
 });
 
 function App() {
@@ -76,11 +78,7 @@ function App() {
   );*/
 
   /** Custom node styling under the StyledNode component. */
-  const nodeTypes = useMemo(() => ({
-    abstractClass: StyledNode(ctx),
-    concreteClass: StyledNode(ctx),
-    trait: StyledNode(ctx),
-  }), [ctx]);
+  const nodeTypes: NodeTypes = useMemo(() => createNodeTypes(ctx.nodes), [ctx.nodes]);
 
   return (
     <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
