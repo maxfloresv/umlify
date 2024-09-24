@@ -40,6 +40,7 @@ export default interface UMLNode {
   // This is a library-independent method.
   updateName: (s: string) => void;
   updateEditMode: (b: boolean) => void;
+  updateField: (f: FieldType, newField: FieldType) => void;
   addField: (f: FieldType) => void;
   removeField: (f: FieldType) => void;
 }
