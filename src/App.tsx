@@ -29,6 +29,12 @@ import StyledNode from "./components/StyledNode";
 /** Custom hooks imports */
 import useGlobalContext from "./hooks/useGlobalContext";
 
+const createNodeTypes = (ctx: ReturnType<typeof useGlobalContext>): NodeTypes => ({
+  abstractClass: StyledNode(ctx),
+  concreteClass: StyledNode(ctx),
+  trait: StyledNode(ctx),
+});
+
 function App() {
   const ctx = useGlobalContext();
 
@@ -51,7 +57,7 @@ function App() {
 
         // Update each node with its correspondant modified node.
         for (let i = 0; i < nodes.length; i++) {
-          nodes[i].updateNode(modifiedNodes[i]);
+          nodes[i].updatePosition(modifiedNodes[i]);
         }
 
         return [...nodes];
@@ -70,14 +76,11 @@ function App() {
   );*/
 
   /** Custom node styling under the StyledNode component. */
-  const nodeTypes = useMemo(
-    () => ({
-      abstractClass: StyledNode,
-      concreteClass: StyledNode,
-      trait: StyledNode,
-    }),
-    []
-  );
+  const nodeTypes = useMemo(() => ({
+    abstractClass: StyledNode(ctx),
+    concreteClass: StyledNode(ctx),
+    trait: StyledNode(ctx),
+  }), [ctx]);
 
   return (
     <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
