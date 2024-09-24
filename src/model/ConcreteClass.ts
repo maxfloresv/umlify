@@ -19,11 +19,13 @@ class ConcreteClass extends UMLAbstractClass {
       type: "concreteClass",
       position: { x: this.x, y: this.y },
       data: {
+        id: this.id,
         name: this.name,
         methods: this.methods,
         fields: this.fields,
         styleClass: "concrete-paragraph",
-        additionalText: null
+        additionalText: null,
+        editMode: false
       },
     };
   }

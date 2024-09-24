@@ -23,11 +23,13 @@ class AbstractClass extends UMLAbstractClass {
       type: "abstractClass",
       position: { x: this.x, y: this.y },
       data: {
+        id: this.id,
         name: this.name,
         methods: this.methods,
         fields: this.fields,
         styleClass: "abstract-paragraph",
         additionalText: null,
+        editMode: false
       },
     };
   }
