@@ -77,9 +77,9 @@ const StyledNode = (props: StyledNodeProps) => {
 
         <div className="field-container">
           {!editMode ?
-            currentFields.map((field: FieldType, id: number) => {
+            currentFields.map((field: FieldType) => {
               return (
-                <p key={id}>
+                <p key={field.name}>
                   {drawVisibility(field.visibility)} {field.name}: {field.type}
                 </p>
               );
