@@ -1,5 +1,5 @@
 import { Node } from "@xyflow/react";
-import UMLNode, { FieldType, MethodType } from "./UMLNode";
+import UMLNode, { CustomNodeData, FieldType, MethodType } from "./UMLNode";
 
 abstract class UMLAbstractClass implements UMLNode {
   id: number;
@@ -36,11 +36,27 @@ abstract class UMLAbstractClass implements UMLNode {
   };
 
   getNode: () => Node = () => this.node;
-  updateNode: (newNode: Node) => void = (newNode) => {
+  updatePosition: (newNode: Node) => void = (newNode) => {
     this.x = newNode.position.x;
     this.y = newNode.position.y;
+
     this.node = newNode;
   };
+  updateName: (newName: string) => void = (newName) => {
+    this.name = newName;
+    this.node.data.name = newName;
+  }
+  updateEditMode: (newStatus: boolean) => void = (newStatus) => {
+    this.node.data.editMode = newStatus;
+  }
+  addField: (f: FieldType) => void = (f) => {
+    this.fields.push(f);
+    this.node.data.fields = this.fields;
+  }
+  removeField: (f: FieldType) => void = (f) => {
+    this.fields = this.fields.filter((field) => field.name !== f.name);
+    this.node.data.fields = this.fields;
+  }
 }
 
 export default UMLAbstractClass;

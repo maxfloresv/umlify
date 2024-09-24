@@ -15,11 +15,15 @@ export interface FieldType {
   visibility: Visibility | null;
 }
 export type CustomNodeData = {
+  // Allows to identify the node when editing. It's not redundant, because
+  // when editing we only can see the node data...
+  id: number;
   name: string;
   methods: MethodType[];
   fields: FieldType[];
   styleClass: string;
   additionalText: string | null;
+  editMode: boolean;
 }
 
 export default interface UMLNode {
@@ -31,5 +35,11 @@ export default interface UMLNode {
   removeExtends: (c: UMLNode) => void;
   node: Node;
   getNode: () => Node;
-  updateNode: (n: Node) => void;
+  // This is a library-dependant (@xy/react) method.
+  updatePosition: (n: Node) => void;
+  // This is a library-independent method.
+  updateName: (s: string) => void;
+  updateEditMode: (b: boolean) => void;
+  addField: (f: FieldType) => void;
+  removeField: (f: FieldType) => void;
 }
