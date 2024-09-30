@@ -90,7 +90,7 @@ const StyledNode = (props: StyledNodeProps) => {
   return (
     <>
       <div ref={nodeRef}>
-        <Handle type="target" position={Position.Top} />
+        <Handle type="target" position={Position.Top} id="top-edge" />
 
         <div className="box-container">
           <div className="title-container">
@@ -359,7 +359,7 @@ const StyledNode = (props: StyledNodeProps) => {
           </div>
         </div>
 
-        <Handle type="source" position={Position.Bottom} id="a" />
+        <Handle type="source" position={Position.Bottom} id="bottom-edge" />
       </div>
     </>
   );
