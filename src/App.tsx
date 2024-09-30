@@ -24,12 +24,14 @@ import ContextMenu from "./styles/menu";
 import Button from "@mui/material/Button";
 
 /** Custom components imports */
-import NodeModal from "./components/NodeModal";
 import StyledNode from "./components/StyledNode";
 
 /** Custom hooks imports */
 import useGlobalContext from "./hooks/useGlobalContext";
 import { CustomNode } from "./model/UMLNode";
+import Trait from "./model/Trait";
+import AbstractClass from "./model/AbstractClass";
+import ConcreteClass from "./model/ConcreteClass";
 
 function App() {
   const ctx = useGlobalContext();
@@ -112,23 +114,48 @@ function App() {
             <>
               <ul>
                 <li onClick={() => {
-                  ctx.setLastNodeType("trait");
-                  ctx.setOpenNodeModal(true)
+                  ctx.setNodes((oldNodes) => {
+                    const newNode = new Trait(
+                      ctx.generateNodeId(),
+                      ctx.DEFAULT_NODE_NAME,
+                      ctx.DEFAULT_NODE_METHODS,
+                      ctx.DEFAULT_NODE_FIELDS,
+                      ctx.relativeMouseCoordinate.x,
+                      ctx.relativeMouseCoordinate.y
+                    );
+                    return [...oldNodes, newNode];
+                  });
                 }}>Add Trait</li>
                 <li onClick={() => {
-                  ctx.setLastNodeType("abstractClass")
-                  ctx.setOpenNodeModal(true)
+                  ctx.setNodes((oldNodes) => {
+                    const newNode = new AbstractClass(
+                      ctx.generateNodeId(),
+                      ctx.DEFAULT_NODE_NAME,
+                      ctx.DEFAULT_NODE_METHODS,
+                      ctx.DEFAULT_NODE_FIELDS,
+                      ctx.relativeMouseCoordinate.x,
+                      ctx.relativeMouseCoordinate.y
+                    );
+                    return [...oldNodes, newNode];
+                  });
                 }}>Add Abstract Class</li>
                 <li onClick={() => {
-                  ctx.setLastNodeType("concreteClass")
-                  ctx.setOpenNodeModal(true)
+                  ctx.setNodes((oldNodes) => {
+                    const newNode = new ConcreteClass(
+                      ctx.generateNodeId(),
+                      ctx.DEFAULT_NODE_NAME,
+                      ctx.DEFAULT_NODE_METHODS,
+                      ctx.DEFAULT_NODE_FIELDS,
+                      ctx.relativeMouseCoordinate.x,
+                      ctx.relativeMouseCoordinate.y
+                    );
+                    return [...oldNodes, newNode];
+                  });
                 }}>Add Concrete Class</li>
               </ul>
             </>
           </ContextMenu>
         )}
-
-        <NodeModal ctx={ctx} type={ctx.lastNodeType} />
 
         <ReactFlow
           nodes={ctx.nodes.map((n) => n.getNode())}
