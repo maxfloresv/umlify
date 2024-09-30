@@ -1,28 +1,33 @@
 import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
-import { Handle, Node, NodeProps, Position } from "@xyflow/react";
+import { Handle, NodeProps, Position } from "@xyflow/react";
 import "./css/paragraph.css";
 import "./css/containers.css";
-import UMLNode, { FieldType, MethodType, Visibility } from "../model/UMLNode";
-import type { CustomNodeData } from "../model/UMLNode";
+import UMLNode, { CustomNode, FieldType, MethodType, Visibility } from "../model/UMLNode";
 
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { IconButton, TextField, Accordion, AccordionSummary, AccordionDetails, Typography, Button, FormControl, InputLabel, Select, MenuItem, Box, Tooltip } from "@mui/material";
+import {
+  IconButton,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  Tooltip
+} from "@mui/material";
 
-import useGlobalContext from "../hooks/useGlobalContext";
-import { width } from "@mui/system";
 import Trait from "../model/Trait";
 import AbstractClass from "../model/AbstractClass";
 import ConcreteClass from "../model/ConcreteClass";
-
-type ClassType = "trait" | "concreteClass" | "abstractClass";
-type CustomNode = Node<CustomNodeData, ClassType>;
 
 type StyledNodeProps = {
   nodeList: UMLNode[];
@@ -94,18 +99,81 @@ const StyledNode = (props: StyledNodeProps) => {
             )}
             {!editMode ?
               <p className={data.styleClass}>{data.name}</p> :
-              <TextField
-                id="class-text-name"
-                sx={{ width: "100%" }}
-                label="Class Name"
-                variant="standard"
-                defaultValue={data.name}
-                onChange={(e) => {
-                  const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                  retrievedNode.updateName(e.target.value);
-                }}
-              />
+              <>
+                <div className="name-type-edit-container">
+                  <TextField
+                    id="class-text-name"
+                    sx={{ width: "100%" }}
+                    label="Class Name"
+                    variant="standard"
+                    defaultValue={data.name}
+                    onChange={(e) => {
+                      const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
+                      retrievedNode.updateName(e.target.value);
+                    }}
+                  />
+
+                  <FormControl variant="standard" fullWidth>
+                    <InputLabel id="input-change-type">Change Type</InputLabel>
+                    <Select
+                      labelId="label-change-type"
+                      id="select-change-type"
+                      sx={{ overflow: "visible", zIndex: 9999 }}
+                      value={node.type}
+                      label="Change Type"
+                      onChange={(e) => {
+                        if (e.target.value === node.type)
+                          return;
+
+                        let newNode: UMLNode | null = null;
+                        switch (e.target.value) {
+                          case "trait":
+                            newNode = new Trait(
+                              data.id,
+                              data.name,
+                              data.methods,
+                              data.fields,
+                              node.positionAbsoluteX,
+                              node.positionAbsoluteY);
+                            break;
+                          case "abstractClass":
+                            newNode = new AbstractClass(
+                              data.id,
+                              data.name,
+                              data.methods,
+                              data.fields,
+                              node.positionAbsoluteX,
+                              node.positionAbsoluteY);
+                            break;
+                          case "concreteClass":
+                            newNode = new ConcreteClass(
+                              data.id,
+                              data.name,
+                              data.methods,
+                              data.fields,
+                              node.positionAbsoluteX,
+                              node.positionAbsoluteY);
+                            break;
+                        }
+
+                        const currentIndex = nodeList.findIndex((n) => n.id === data.id);
+                        // Only proceeds if the node is found
+                        if (currentIndex !== -1 && newNode) {
+                          nodeList[currentIndex] = newNode;
+                        }
+
+                        setNodes([...nodeList]);
+                      }}
+                    >
+                      <MenuItem value={"trait"}>Trait</MenuItem>
+                      <MenuItem value={"abstractClass"}>Abstract Class</MenuItem>
+                      <MenuItem value={"concreteClass"}>Concrete Class</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              </>
             }
+
             <div style={{ position: "absolute", top: 0, right: 0 }}>
               {editMode ?
                 <Tooltip placement="top" title="Exit Edit mode" arrow>
@@ -120,66 +188,6 @@ const StyledNode = (props: StyledNodeProps) => {
                 </Tooltip>
               }
             </div>
-
-            {editMode && <div style={{ position: "absolute", top: 0, left: 0 }}>
-              <FormControl fullWidth>
-                <InputLabel id="input-change-type">Change Type</InputLabel>
-                <Select
-                  labelId="label-change-type"
-                  id="select-change-type"
-                  sx={{ overflow: "visible", zIndex: 9999 }}
-                  value={node.type}
-                  label="Change Type"
-                  onChange={(e) => {
-                    if (e.target.value === node.type)
-                      return;
-
-                    let newNode: UMLNode | null = null;
-                    switch (e.target.value) {
-                      case "trait":
-                        newNode = new Trait(
-                          data.id,
-                          data.name,
-                          data.methods,
-                          data.fields,
-                          node.positionAbsoluteX,
-                          node.positionAbsoluteY);
-                        break;
-                      case "abstractClass":
-                        newNode = new AbstractClass(
-                          data.id,
-                          data.name,
-                          data.methods,
-                          data.fields,
-                          node.positionAbsoluteX,
-                          node.positionAbsoluteY);
-                        break;
-                      case "concreteClass":
-                        newNode = new ConcreteClass(
-                          data.id,
-                          data.name,
-                          data.methods,
-                          data.fields,
-                          node.positionAbsoluteX,
-                          node.positionAbsoluteY);
-                        break;
-                    }
-
-                    const currentIndex = nodeList.findIndex((n) => n.id === data.id);
-                    // Only proceeds if the node is found
-                    if (currentIndex !== -1 && newNode) {
-                      nodeList[currentIndex] = newNode;
-                    }
-
-                    setNodes([...nodeList]);
-                  }}
-                >
-                  <MenuItem value={"trait"}>Trait</MenuItem>
-                  <MenuItem value={"abstractClass"}>Abstract Class</MenuItem>
-                  <MenuItem value={"concreteClass"}>Concrete Class</MenuItem>
-                </Select>
-              </FormControl>
-            </div>}
           </div>
 
           <div className="field-container">
