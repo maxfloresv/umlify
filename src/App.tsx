@@ -13,6 +13,7 @@ import {
   applyNodeChanges,
   addEdge,
   NodeTypes,
+  NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -28,8 +29,7 @@ import StyledNode from "./components/StyledNode";
 
 /** Custom hooks imports */
 import useGlobalContext from "./hooks/useGlobalContext";
-import Style from "@mui/system/style";
-import UMLNode from "./model/UMLNode";
+import { CustomNode } from "./model/UMLNode";
 
 function App() {
   const ctx = useGlobalContext();
@@ -73,10 +73,20 @@ function App() {
 
   /** Custom node styling under the StyledNode component. */
   // Empty dependences causes this to not rerender. 
+
+  const createNodeComponent = (props: NodeProps<CustomNode>) => (
+    <StyledNode
+      nodeList={ctx.nodes}
+      node={props}
+      contextMenuModifier={ctx.setIsMenuContextActive}
+      setNodes={ctx.setNodes}
+    />
+  );
+
   const nodeTypes: NodeTypes = useMemo(() => ({
-    abstractClass: (props) => <StyledNode nodeList={ctx.nodes} node={props} />,
-    concreteClass: (props) => <StyledNode nodeList={ctx.nodes} node={props} />,
-    trait: (props) => <StyledNode nodeList={ctx.nodes} node={props} />
+    abstractClass: (props) => createNodeComponent(props),
+    concreteClass: (props) => createNodeComponent(props),
+    trait: (props) => createNodeComponent(props)
   }), []);
 
   return (
@@ -85,7 +95,7 @@ function App() {
       ctx.setRightClicked(true);
 
       const reactFlowBounds = ctx.reactFlowWrapper.current?.getBoundingClientRect();
-      // check if the dropped element is valid
+
       if (!ctx.reactFlowInstance || !reactFlowBounds) {
         return;
       }
@@ -99,21 +109,28 @@ function App() {
       ctx.setMouseCoordinate({ x: e.clientX, y: e.clientY });
     }} style={{ height: "100%" }}>
       <>
-        {/* TODO: Calculate position in function of the canvas zoom */}
-        {/* https://github.com/xyflow/xyflow/discussions/3209 */}
-        {ctx.rightClicked && (
+        {ctx.rightClicked && ctx.isMenuContextActive && (
           <ContextMenu top={ctx.mouseCoordinate.y} left={ctx.mouseCoordinate.x}>
             <>
               <ul>
-                <li onClick={() => ctx.setOpenNodeModal(true)}>Añadir Trait</li>
-                <li>Añadir clase abstracta</li>
-                <li>Añadir clase concreta</li>
+                <li onClick={() => {
+                  ctx.setLastNodeType("trait");
+                  ctx.setOpenNodeModal(true)
+                }}>Add Trait</li>
+                <li onClick={() => {
+                  ctx.setLastNodeType("abstractClass")
+                  ctx.setOpenNodeModal(true)
+                }}>Add Abstract Class</li>
+                <li onClick={() => {
+                  ctx.setLastNodeType("concreteClass")
+                  ctx.setOpenNodeModal(true)
+                }}>Add Concrete Class</li>
               </ul>
             </>
           </ContextMenu>
         )}
 
-        <NodeModal ctx={ctx} />
+        <NodeModal ctx={ctx} type={ctx.lastNodeType} />
 
         <ReactFlow
           nodes={ctx.nodes.map((n) => n.getNode())}
@@ -128,7 +145,7 @@ function App() {
           <Panel style={{ backgroundColor: "white" }} position="top-right">
             {/* This gotta be deleted in the final version */}
             <Button disabled>
-              Añadir nodo
+              Add node
             </Button>
           </Panel>
 
