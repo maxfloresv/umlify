@@ -1,10 +1,8 @@
 import { Edge, ReactFlowInstance } from "@xyflow/react";
-import UMLNode from "../model/UMLNode";
+import UMLNode, { FieldType, MethodType } from "../model/UMLNode";
 import { useState, useRef } from "react";
 import useCanvasRightClick from "./useCanvasRightClick";
-import useNodeOperator from "./useNodeOperator";
 import useAddingNodeModal from "./useAddingNodeModal";
-import Trait from "../model/Trait";
 
 /**
  * The global store of states and functions/methods that are used across the application.
@@ -15,15 +13,16 @@ const useGlobalContext = () => {
   const INITIAL_NODES: UMLNode[] = [];
   const INITIAL_EDGES: Edge[] = [];
 
+  const DEFAULT_NODE_NAME: string = "";
+  const DEFAULT_NODE_FIELDS: FieldType[] = [];
+  const DEFAULT_NODE_METHODS: MethodType[] = [];
+
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
 
   const generateNodeId = () => {
     return nodes.length + 1;
   }
-
-  // This is an indicator to know the last node type that was added.
-  const [lastNodeType, setLastNodeType] = useState<string | null>(null);
 
   // Allows me to disable the context menu in some components
   const [isMenuContextActive, setIsMenuContextActive] = useState<boolean>(true);
@@ -50,25 +49,15 @@ const useGlobalContext = () => {
     setRelativeMouseCoordinate
   } = useCanvasRightClick();
 
-  const {
-    nameNodeOperator,
-    fieldsNodeOperator,
-    methodsNodeOperator,
-    updateNameNodeOperator,
-    addFieldNodeOperator,
-    removeFieldNodeOperator,
-    addMethodNodeOperator,
-    removeMethodNodeOperator,
-  } = useNodeOperator();
-
   return {
+    DEFAULT_NODE_NAME,
+    DEFAULT_NODE_FIELDS,
+    DEFAULT_NODE_METHODS,
     nodes,
     setNodes,
     generateNodeId,
     edges,
     setEdges,
-    lastNodeType,
-    setLastNodeType,
     openNodeModal,
     setOpenNodeModal,
     addingNode,
@@ -77,14 +66,6 @@ const useGlobalContext = () => {
     setRightClicked,
     mouseCoordinate,
     setMouseCoordinate,
-    nameNodeOperator,
-    fieldsNodeOperator,
-    methodsNodeOperator,
-    updateNameNodeOperator,
-    addFieldNodeOperator,
-    removeFieldNodeOperator,
-    addMethodNodeOperator,
-    removeMethodNodeOperator,
     isMenuContextActive,
     setIsMenuContextActive,
     reactFlowWrapper,
