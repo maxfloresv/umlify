@@ -38,16 +38,10 @@ type StyledNodeProps = {
 const StyledNode = (props: StyledNodeProps) => {
   const { ctx, node } = props;
   const { data } = node;
-  const [nodeList, setNodeList] = useState<UMLNode[]>(ctx.nodes);
-
-  // TODO: Nodelist must update when the node list changes, it's not a static object...
-  // This doesn't work, it doesn't retrieve information from the context
-  useEffect(() => {
-    setNodeList(ctx.nodes);
-  }, [ctx.nodes]);
 
   const [editMode, setEditMode] = useState<boolean>(false);
-  const [currentFields, setCurrentFields] = useState<FieldType[]>(data.fields);
+  // Allows forcing rerenders in this component.
+  const [lastChange, setLastChange] = useState<Date | null>(null);
   // Set what panel is expanded.
   const [expanded, setExpanded] = useState<string | false>(false);
 
@@ -72,6 +66,10 @@ const StyledNode = (props: StyledNodeProps) => {
   const handlePanelChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : false);
   };
+
+  const forceUpdate = () => {
+    setLastChange(new Date());
+  }
 
   // Desired behaviour: this should be called every time the user right-clicks on the node
   // THIS IS A TODO
@@ -113,8 +111,12 @@ const StyledNode = (props: StyledNodeProps) => {
                     variant="standard"
                     defaultValue={data.name}
                     onChange={(e) => {
-                      const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                      retrievedNode.updateName(e.target.value);
+                      ctx.setNodes((oldNodes) => {
+                        const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                        retrievedNode.updateName(e.target.value);
+                        return [...oldNodes];
+                      });
+                      forceUpdate();
                     }}
                   />
 
@@ -161,14 +163,16 @@ const StyledNode = (props: StyledNodeProps) => {
                             break;
                         }
 
-                        console.log(nodeList);
-                        const currentIndex = nodeList.findIndex((n) => n.id === data.id);
-                        // Only proceeds if the node is found
-                        if (currentIndex !== -1 && newNode) {
-                          nodeList[currentIndex] = newNode;
-                        }
+                        ctx.setNodes((oldNodes) => {
+                          const currentIndex = oldNodes.findIndex((n) => n.id === data.id);
+                          // Only proceeds if the node is found
+                          if (currentIndex !== -1 && newNode) {
+                            oldNodes[currentIndex] = newNode;
+                          }
 
-                        ctx.setNodes([...nodeList]);
+                          return [...oldNodes];
+                        });
+                        forceUpdate();
                       }}
                     >
                       <MenuItem value={"trait"}>Trait</MenuItem>
@@ -198,25 +202,32 @@ const StyledNode = (props: StyledNodeProps) => {
 
           <div className="field-container">
             {!editMode ?
-              currentFields.map((field: FieldType, id: number) => (
-                <p key={`field-${field.name}-${id}`}>
+              node.data.fields.map((field: FieldType, id: number) => (
+                <p key={`field-${field.name}-${id}-${data.name}`}>
                   {drawVisibility(field.visibility)} {field.name}: {field.type}
                 </p>
               )) :
               <>
                 <Button onClick={() => {
-                  const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                  const newField: FieldType = {
-                    name: "newField",
-                    type: "String",
-                    visibility: "public"
-                  };
+                  ctx.setNodes((oldNodes) => {
+                    return oldNodes.map((node: UMLNode) => {
+                      if (node.id === data.id) {
+                        const newField: FieldType = {
+                          name: "newField",
+                          type: "String",
+                          visibility: "public"
+                        };
 
-                  retrievedNode.addField(newField);
-                  setCurrentFields([...data.fields]);
+                        node.addField(newField);
+                      }
+
+                      return node;
+                    });
+                  });
+                  forceUpdate();
                 }} variant="text" startIcon={<AddIcon />}>Add field</Button>
 
-                {currentFields.map((field: FieldType, i: number) => {
+                {node.data.fields.map((field: FieldType, i: number) => {
                   return (
                     <Accordion
                       expanded={expanded === `panel-fields${i}`}
@@ -235,9 +246,12 @@ const StyledNode = (props: StyledNodeProps) => {
 
                         <div style={{ width: "fit-content", alignContent: "center" }}>
                           <IconButton onClick={() => {
-                            const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                            retrievedNode.removeField(field);
-                            setCurrentFields([...data.fields]);
+                            ctx.setNodes((oldNodes) => {
+                              const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                              retrievedNode.removeField(field);
+                              return [...oldNodes];
+                            });
+                            forceUpdate();
                           }}>
                             <DeleteIcon />
                           </IconButton>
@@ -251,15 +265,18 @@ const StyledNode = (props: StyledNodeProps) => {
                             variant="standard"
                             defaultValue={field.name}
                             onChange={(e) => {
-                              const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                              const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                              ctx.setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
-                              if (!fieldToUpdate) {
-                                return;
-                              }
+                                if (!fieldToUpdate) {
+                                  return oldNodes;
+                                }
 
-                              retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, name: e.target.value });
-                              setCurrentFields([...data.fields]);
+                                retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, name: e.target.value });
+                                return [...oldNodes];
+                              });
+                              forceUpdate();
                             }}
                           />
 
@@ -269,15 +286,18 @@ const StyledNode = (props: StyledNodeProps) => {
                             variant="standard"
                             defaultValue={field.type}
                             onChange={(e) => {
-                              const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                              const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                              ctx.setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
-                              if (!fieldToUpdate) {
-                                return;
-                              }
+                                if (!fieldToUpdate) {
+                                  return oldNodes;
+                                }
 
-                              retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, type: e.target.value });
-                              setCurrentFields([...data.fields]);
+                                retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, type: e.target.value });
+                                return [...oldNodes];
+                              });
+                              forceUpdate();
                             }}
                           />
                         </div>
@@ -291,18 +311,19 @@ const StyledNode = (props: StyledNodeProps) => {
                             value={field.visibility}
                             label="Visibility"
                             onChange={(e) => {
-                              const [retrievedNode] = nodeList.filter((n: UMLNode) => n.id === data.id);
-                              const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                              ctx.setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
-                              if (!fieldToUpdate) {
-                                return;
-                              }
+                                if (!fieldToUpdate) {
+                                  return oldNodes;
+                                }
 
-                              retrievedNode.updateField(fieldToUpdate, {
-                                ...fieldToUpdate,
-                                visibility: e.target.value as Visibility
+                                retrievedNode.updateField(fieldToUpdate,
+                                  { ...fieldToUpdate, visibility: e.target.value as Visibility });
+                                return [...oldNodes];
                               });
-                              setCurrentFields([...data.fields]);
+                              forceUpdate();
                             }}
                           >
                             <MenuItem value={"public"}>Public</MenuItem>
