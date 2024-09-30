@@ -20,10 +20,15 @@
   position: relative;
 }
 
-.field-text-edit-container {
+.name-type-edit-container, field-text-edit-container {
   display: flex;
   align-items: flex-start;
   margin-bottom: 15px;
   justify-content: space-between;
   gap: 10px;
+}
+
+.name-type-edit-container {
+  width: 90%;
+  margin: 15px auto;
 }
