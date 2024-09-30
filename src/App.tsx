@@ -76,10 +76,8 @@ function App() {
 
   const createNodeComponent = (props: NodeProps<CustomNode>) => (
     <StyledNode
-      nodeList={ctx.nodes}
+      ctx={ctx}
       node={props}
-      contextMenuModifier={ctx.setIsMenuContextActive}
-      setNodes={ctx.setNodes}
     />
   );
 
