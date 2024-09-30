@@ -24,6 +24,9 @@ const useGlobalContext = () => {
     return nodes.length + 1;
   }
 
+  // Allows me to disable the context menu in some components
+  const [isMenuContextActive, setIsMenuContextActive] = useState<boolean>(true);
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [
     reactFlowInstance,
@@ -79,6 +82,8 @@ const useGlobalContext = () => {
     removeFieldNodeOperator,
     addMethodNodeOperator,
     removeMethodNodeOperator,
+    isMenuContextActive,
+    setIsMenuContextActive,
     reactFlowWrapper,
     reactFlowInstance,
     setReactFlowInstance,
