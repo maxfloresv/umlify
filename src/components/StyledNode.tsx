@@ -28,23 +28,27 @@ import {
 import Trait from "../model/Trait";
 import AbstractClass from "../model/AbstractClass";
 import ConcreteClass from "../model/ConcreteClass";
+import useGlobalContext from "../hooks/useGlobalContext";
 
 type StyledNodeProps = {
-  nodeList: UMLNode[];
+  ctx: ReturnType<typeof useGlobalContext>;
   node: NodeProps<CustomNode>;
-  // Actives or inactives the context
-  contextMenuModifier: Dispatch<SetStateAction<boolean>>;
-  setNodes: Dispatch<SetStateAction<UMLNode[]>>;
 };
 
-// TODO: fix this with the correct type
 const StyledNode = (props: StyledNodeProps) => {
-  const { nodeList, node, contextMenuModifier, setNodes } = props;
+  const { ctx, node } = props;
   const { data } = node;
-  const setIsMenuContextActive = contextMenuModifier;
+  const [nodeList, setNodeList] = useState<UMLNode[]>(ctx.nodes);
+
+  // TODO: Nodelist must update when the node list changes, it's not a static object...
+  // This doesn't work, it doesn't retrieve information from the context
+  useEffect(() => {
+    setNodeList(ctx.nodes);
+  }, [ctx.nodes]);
 
   const [editMode, setEditMode] = useState<boolean>(false);
   const [currentFields, setCurrentFields] = useState<FieldType[]>(data.fields);
+  // Set what panel is expanded.
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -70,9 +74,10 @@ const StyledNode = (props: StyledNodeProps) => {
   };
 
   // Desired behaviour: this should be called every time the user right-clicks on the node
+  // THIS IS A TODO
   useEffect(() => {
     function handleContextMenu(e: MouseEvent) {
-      setIsMenuContextActive(false);
+      ctx.setIsMenuContextActive(false);
       setRightClickedAlt((oldState) => !oldState);
     }
 
@@ -156,13 +161,14 @@ const StyledNode = (props: StyledNodeProps) => {
                             break;
                         }
 
+                        console.log(nodeList);
                         const currentIndex = nodeList.findIndex((n) => n.id === data.id);
                         // Only proceeds if the node is found
                         if (currentIndex !== -1 && newNode) {
                           nodeList[currentIndex] = newNode;
                         }
 
-                        setNodes([...nodeList]);
+                        ctx.setNodes([...nodeList]);
                       }}
                     >
                       <MenuItem value={"trait"}>Trait</MenuItem>
