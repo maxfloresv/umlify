@@ -8,6 +8,7 @@ p {
 }
 
 .abstract-paragraph {
+  margin: none;
   font-weight: bold;
   font-style: italic;
   text-align: center;

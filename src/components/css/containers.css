@@ -8,6 +8,7 @@
 
 .title-container {
   border: 1px solid black;
+  min-height: 35px;
   width: 100%;
 }
 
@@ -20,7 +21,7 @@
   position: relative;
 }
 
-.name-type-edit-container, field-text-edit-container {
+.name-type-edit-container, .field-text-edit-container {
   display: flex;
   align-items: flex-start;
   margin-bottom: 15px;
