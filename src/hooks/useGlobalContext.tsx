@@ -12,9 +12,7 @@ import Trait from "../model/Trait";
  */
 const useGlobalContext = () => {
   /** Nodes are the main elements of the diagram. They can be connected by edges. */
-  const INITIAL_NODES: UMLNode[] = [new Trait(1, "Trait", [], [
-    { name: "field", type: "Integer", visibility: "public" },
-  ], 0, 0)];
+  const INITIAL_NODES: UMLNode[] = [];
   const INITIAL_EDGES: Edge[] = [];
 
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
@@ -23,6 +21,9 @@ const useGlobalContext = () => {
   const generateNodeId = () => {
     return nodes.length + 1;
   }
+
+  // This is an indicator to know the last node type that was added.
+  const [lastNodeType, setLastNodeType] = useState<string | null>(null);
 
   // Allows me to disable the context menu in some components
   const [isMenuContextActive, setIsMenuContextActive] = useState<boolean>(true);
@@ -66,6 +67,8 @@ const useGlobalContext = () => {
     generateNodeId,
     edges,
     setEdges,
+    lastNodeType,
+    setLastNodeType,
     openNodeModal,
     setOpenNodeModal,
     addingNode,
