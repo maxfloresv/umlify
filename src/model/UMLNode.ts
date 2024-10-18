@@ -46,4 +46,7 @@ export default interface UMLNode {
   updateField: (f: FieldType, newField: FieldType) => void;
   addField: (f: FieldType) => void;
   removeField: (f: FieldType) => void;
+  updateMethod: (m: MethodType, newMethod: MethodType) => void;
+  addMethod: (m: MethodType) => void;
+  removeMethod: (m: MethodType) => void;
 }
