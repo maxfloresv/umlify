@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useState, useRef } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import "./css/paragraph.css";
 import "./css/containers.css";
-import UMLNode, { CustomNode, FieldType, MethodType, Visibility } from "../model/UMLNode";
+import UMLNode, { CustomNode, FieldType, MethodType, Type, Visibility } from "../model/UMLNode";
 
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -22,21 +22,25 @@ import {
   Select,
   MenuItem,
   Box,
-  Tooltip
+  Tooltip,
+  Autocomplete,
+  Chip,
+  FormGroup,
+  FormControlLabel,
+  Checkbox
 } from "@mui/material";
 
 import Trait from "../model/Trait";
 import AbstractClass from "../model/AbstractClass";
 import ConcreteClass from "../model/ConcreteClass";
-import useGlobalContext from "../hooks/useGlobalContext";
 
 type StyledNodeProps = {
-  ctx: ReturnType<typeof useGlobalContext>;
+  setNodes: Dispatch<SetStateAction<UMLNode[]>>;
   node: NodeProps<CustomNode>;
 };
 
 const StyledNode = (props: StyledNodeProps) => {
-  const { ctx, node } = props;
+  const { setNodes, node } = props;
   const { data } = node;
 
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -75,7 +79,7 @@ const StyledNode = (props: StyledNodeProps) => {
   // THIS IS A TODO
   useEffect(() => {
     function handleContextMenu(e: MouseEvent) {
-      ctx.setIsMenuContextActive(false);
+      //.setIsMenuContextActive(false);
       setRightClickedAlt((oldState) => !oldState);
     }
 
@@ -92,7 +96,7 @@ const StyledNode = (props: StyledNodeProps) => {
 
   return (
     <>
-      <div ref={nodeRef}>
+      <div ref={nodeRef} style={{ maxWidth: "425px" }}>
         <Handle type="target" position={Position.Top} id="top-edge" />
 
         <div className="box-container">
@@ -111,7 +115,7 @@ const StyledNode = (props: StyledNodeProps) => {
                     variant="standard"
                     defaultValue={data.name}
                     onChange={(e) => {
-                      ctx.setNodes((oldNodes) => {
+                      setNodes((oldNodes) => {
                         const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                         retrievedNode.updateName(e.target.value);
                         return [...oldNodes];
@@ -163,7 +167,7 @@ const StyledNode = (props: StyledNodeProps) => {
                             break;
                         }
 
-                        ctx.setNodes((oldNodes) => {
+                        setNodes((oldNodes) => {
                           const currentIndex = oldNodes.findIndex((n) => n.id === data.id);
                           // Only proceeds if the node is found
                           if (currentIndex !== -1 && newNode) {
@@ -209,12 +213,13 @@ const StyledNode = (props: StyledNodeProps) => {
               )) :
               <>
                 <Button onClick={() => {
-                  ctx.setNodes((oldNodes) => {
+                  setNodes((oldNodes) => {
                     return oldNodes.map((node: UMLNode) => {
                       if (node.id === data.id) {
+                        // Placeholder
                         const newField: FieldType = {
-                          name: "newField",
-                          type: "String",
+                          name: "",
+                          type: "",
                           visibility: "public"
                         };
 
@@ -237,8 +242,8 @@ const StyledNode = (props: StyledNodeProps) => {
                         <div style={{ width: "100%" }}>
                           <AccordionSummary
                             expandIcon={<ArrowDownwardIcon />}
-                            aria-controls={`panel${i}-content`}
-                            id={`panel${i}-header`}
+                            aria-controls={`panel-fields-${i}-content`}
+                            id={`panel-fields-${i}-header`}
                           >
                             <Typography>{drawVisibility(field.visibility)} {field.name}: {field.type}</Typography>
                           </AccordionSummary>
@@ -246,7 +251,7 @@ const StyledNode = (props: StyledNodeProps) => {
 
                         <div style={{ width: "fit-content", alignContent: "center" }}>
                           <IconButton onClick={() => {
-                            ctx.setNodes((oldNodes) => {
+                            setNodes((oldNodes) => {
                               const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                               retrievedNode.removeField(field);
                               return [...oldNodes];
@@ -257,15 +262,16 @@ const StyledNode = (props: StyledNodeProps) => {
                           </IconButton>
                         </div>
                       </Box>
+
                       <AccordionDetails>
-                        <div className="field-text-edit-container">
+                        <div className="two-cols-container">
                           <TextField
                             id={`field-${i}-name`}
                             label="Field Name"
                             variant="standard"
                             defaultValue={field.name}
                             onChange={(e) => {
-                              ctx.setNodes((oldNodes) => {
+                              setNodes((oldNodes) => {
                                 const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                                 const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
@@ -286,7 +292,7 @@ const StyledNode = (props: StyledNodeProps) => {
                             variant="standard"
                             defaultValue={field.type}
                             onChange={(e) => {
-                              ctx.setNodes((oldNodes) => {
+                              setNodes((oldNodes) => {
                                 const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                                 const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
@@ -311,7 +317,7 @@ const StyledNode = (props: StyledNodeProps) => {
                             value={field.visibility}
                             label="Visibility"
                             onChange={(e) => {
-                              ctx.setNodes((oldNodes) => {
+                              setNodes((oldNodes) => {
                                 const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                                 const fieldToUpdate = data.fields.find((f) => f.name === field.name);
 
@@ -347,36 +353,219 @@ const StyledNode = (props: StyledNodeProps) => {
                     {drawVisibility(method.visibility)} {method.name}
                     {"("}
                     {method.domType.map((t) => t).join(", ")}
-                    {")"}
-                    {method.codType ? ": " + method.codType : ""}
+                    {"): "}
+                    {method.codType ? method.codType : "Unit"}
                   </p>
                 );
               }) :
               <>
-                <Button variant="text" startIcon={<AddIcon />}>Add method</Button>
-                {data.methods.map((method: MethodType, id: number) => {
+                <Button onClick={() => {
+                  setNodes((oldNodes) => {
+                    return oldNodes.map((node: UMLNode) => {
+                      if (node.id === data.id) {
+                        // Placeholder
+                        const newMethod: MethodType = {
+                          name: "",
+                          domType: [],
+                          codType: "",
+                          visibility: "public",
+                          abstract: false
+                        };
+
+                        node.addMethod(newMethod);
+                      }
+
+                      return node;
+                    });
+                  });
+                  forceUpdate();
+                }} variant="text" startIcon={<AddIcon />}>Add method</Button>
+
+                {node.data.methods.map((method: MethodType, i: number) => {
                   return (
                     <Accordion
-                      expanded={expanded === `panel-methods${id}`}
-                      onChange={handlePanelChange(`panel-methods${id}`)}
+                      expanded={expanded === `panel-methods${i}`}
+                      onChange={handlePanelChange(`panel-methods${i}`)}
                     >
-                      <AccordionSummary
-                        expandIcon={<ArrowDownwardIcon />}
-                        aria-controls={`panel${id}-content`}
-                        id={`panel${id}-header`}
-                      >
-                        <Typography>{drawVisibility(method.visibility)} {method.name}</Typography>
-                      </AccordionSummary>
+                      <Box sx={{ display: "flex", minWidth: "100%" }}>
+                        <div style={{ width: "100%" }}>
+                          <AccordionSummary
+                            expandIcon={<ArrowDownwardIcon />}
+                            aria-controls={`panel-methods-${i}-content`}
+                            id={`panel-methods-${i}-header`}
+                          >
+                            <Typography>
+                              {drawVisibility(method.visibility)} {method.name}
+                              {"("}
+                              {method.domType.map((t) => t).join(", ")}
+                              {"): "}
+                              {method.codType ? method.codType : "Unit"}
+                            </Typography>
+                          </AccordionSummary>
+                        </div>
+
+                        <div style={{ width: "fit-content", alignContent: "center" }}>
+                          <IconButton onClick={() => {
+                            setNodes((oldNodes) => {
+                              const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                              retrievedNode.removeMethod(method);
+                              return [...oldNodes];
+                            });
+                            forceUpdate();
+                          }}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </div>
+                      </Box>
+
                       <AccordionDetails>
-                        <Typography>
-                          <p key={id}>
-                            {drawVisibility(method.visibility)} {method.name}
-                            {"("}
-                            {method.domType.map((t) => t).join(", ")}
-                            {")"}
-                            {method.codType ? ": " + method.codType : ""}
-                          </p>
-                        </Typography>
+                        <div className="two-cols-container">
+                          <TextField
+                            id={`method-${i}-name`}
+                            label="Method Name"
+                            variant="standard"
+                            defaultValue={method.name}
+                            onChange={(e) => {
+                              setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const methodToUpdate = data.methods.find((m) => m.name === method.name);
+
+                                if (!methodToUpdate) {
+                                  return oldNodes;
+                                }
+
+                                retrievedNode.updateMethod(methodToUpdate, { ...methodToUpdate, name: e.target.value });
+                                return [...oldNodes];
+                              });
+                              forceUpdate();
+                            }}
+                          />
+
+                          <TextField
+                            id={`method-${i}-codType`}
+                            label="Method Codomain Type"
+                            variant="standard"
+                            defaultValue={method.codType}
+                            onChange={(e) => {
+                              setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const methodToUpdate = data.methods.find((m) => m.name === method.name);
+
+                                if (!methodToUpdate) {
+                                  return oldNodes;
+                                }
+
+                                retrievedNode.updateMethod(methodToUpdate, { ...methodToUpdate, codType: e.target.value });
+                                return [...oldNodes];
+                              });
+                              forceUpdate();
+                            }}
+                          />
+                        </div>
+
+                        <Autocomplete
+                          sx={{ maxWidth: 'inherit', marginBottom: "20px" }}
+                          multiple
+                          id="method-tags-standard"
+                          options={[]}
+                          value={method.domType}
+                          freeSolo
+                          onChange={(_, newValue: readonly string[]) => {
+                            if (newValue && newValue.length >= 0) {
+                              setNodes((oldNodes) => {
+                                const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                const methodToUpdate = data.methods.find((m) => m.name === method.name);
+
+                                if (!methodToUpdate) {
+                                  return oldNodes;
+                                }
+
+                                // As newValue is read-only, we pass an array copy
+                                const newDomType: Type[] = [...newValue];
+                                retrievedNode.updateMethod(methodToUpdate,
+                                  { ...methodToUpdate, domType: newDomType });
+                                return [...oldNodes];
+                              });
+                              forceUpdate();
+                            }
+                          }}
+                          renderTags={(value: readonly string[], getTagProps) =>
+                            value.map((option: string, index: number) => {
+                              const { key, ...tagProps } = getTagProps({ index });
+                              return (
+                                <Chip variant="outlined" label={option} key={key} {...tagProps} />
+                              );
+                            })
+                          }
+                          renderInput={(params) => {
+                            return (
+                              <TextField
+                                {...params}
+                                variant="standard"
+                                label="Method Domain Type(s)"
+                                placeholder="Type and press Enter"
+                              />
+                            )
+                          }}
+                        />
+
+                        <div className="two-cols-container" style={{ marginBottom: 0 }}>
+                          <FormControl fullWidth>
+                            <InputLabel id={`method-${i}-visibility`}>Visibility</InputLabel>
+                            <Select
+                              labelId={`method-${i}-visibility`}
+                              id={`method-${i}-visibility-select`}
+                              sx={{ overflow: "visible", zIndex: 9999 }}
+                              value={method.visibility}
+                              label="Visibility"
+                              onChange={(e) => {
+                                setNodes((oldNodes) => {
+                                  const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                  const methodToUpdate = data.methods.find((m) => m.name === method.name);
+
+                                  if (!methodToUpdate) {
+                                    return oldNodes;
+                                  }
+
+                                  retrievedNode.updateMethod(methodToUpdate,
+                                    { ...methodToUpdate, visibility: e.target.value as Visibility });
+                                  return [...oldNodes];
+                                });
+                                forceUpdate();
+                              }}
+                            >
+                              <MenuItem value={"public"}>Public</MenuItem>
+                              <MenuItem value={"protected"}>Protected</MenuItem>
+                              <MenuItem value={"private"}>Private</MenuItem>
+                            </Select>
+                          </FormControl>
+
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={method.abstract}
+                                  onChange={(_) => {
+                                    setNodes((oldNodes) => {
+                                      const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                                      const methodToUpdate = data.methods.find((m) => m.name === method.name);
+
+                                      if (!methodToUpdate) {
+                                        return oldNodes;
+                                      }
+
+                                      retrievedNode.updateMethod(methodToUpdate,
+                                        { ...methodToUpdate, abstract: !method.abstract });
+                                      return [...oldNodes];
+                                    });
+                                    forceUpdate();
+                                  }}
+                                />
+                              }
+                              label="Abstract?"
+                            />
+                          </FormGroup>
+                        </div>
                       </AccordionDetails>
                     </Accordion>
                   )
