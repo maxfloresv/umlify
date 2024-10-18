@@ -27,14 +27,14 @@ import Button from "@mui/material/Button";
 import StyledNode from "./components/StyledNode";
 
 /** Custom hooks imports */
-import useGlobalContext from "./hooks/useGlobalContext";
+import { useGlobalContext, type GlobalContext } from "./hooks/useGlobalContext";
 import { CustomNode } from "./model/UMLNode";
 import Trait from "./model/Trait";
 import AbstractClass from "./model/AbstractClass";
 import ConcreteClass from "./model/ConcreteClass";
 
 function App() {
-  const ctx = useGlobalContext();
+  const ctx: GlobalContext = useGlobalContext();
 
   /** This handles the right-clicks on the canvas. */
   // Reference: https://blog.logrocket.com/creating-react-context-menu/ 
@@ -76,18 +76,22 @@ function App() {
   /** Custom node styling under the StyledNode component. */
   // Empty dependences causes this to not rerender. 
 
-  const createNodeComponent = (props: NodeProps<CustomNode>) => (
+  const createNodeComponent = (ctx: GlobalContext, props: NodeProps<CustomNode>) => (
     <StyledNode
-      ctx={ctx}
+      setNodes={ctx.setNodes}
       node={props}
     />
   );
 
-  const nodeTypes: NodeTypes = useMemo(() => ({
-    abstractClass: (props) => createNodeComponent(props),
-    concreteClass: (props) => createNodeComponent(props),
-    trait: (props) => createNodeComponent(props)
-  }), []);
+  function CustomNodeTypes(ctx: GlobalContext): NodeTypes {
+    return useMemo(() => {
+      return {
+        abstractClass: (props) => createNodeComponent(ctx, props),
+        concreteClass: (props) => createNodeComponent(ctx, props),
+        trait: (props) => createNodeComponent(ctx, props)
+      }
+    }, []);
+  };
 
   return (
     <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
@@ -160,20 +164,13 @@ function App() {
         <ReactFlow
           nodes={ctx.nodes.map((n) => n.getNode())}
           edges={ctx.edges}
-          nodeTypes={nodeTypes}
+          nodeTypes={CustomNodeTypes(ctx)}
           onNodesChange={onNodesChange}
           onInit={ctx.setReactFlowInstance}
           /* onEdgesChange={onEdgesChange} */
           /* onConnect={onConnect} */
           fitView={false}
         >
-          <Panel style={{ backgroundColor: "white" }} position="top-right">
-            {/* This gotta be deleted in the final version */}
-            <Button disabled>
-              Add node
-            </Button>
-          </Panel>
-
           <Background />
           <Controls />
         </ReactFlow>
