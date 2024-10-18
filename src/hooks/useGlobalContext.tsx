@@ -1,14 +1,41 @@
 import { Edge, ReactFlowInstance } from "@xyflow/react";
 import UMLNode, { FieldType, MethodType } from "../model/UMLNode";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import useCanvasRightClick from "./useCanvasRightClick";
 import useAddingNodeModal from "./useAddingNodeModal";
 
+type GlobalContext = {
+  DEFAULT_NODE_NAME: string;
+  DEFAULT_NODE_FIELDS: FieldType[];
+  DEFAULT_NODE_METHODS: MethodType[];
+  nodes: UMLNode[];
+  setNodes: React.Dispatch<React.SetStateAction<UMLNode[]>>;
+  getNodes: () => UMLNode[];
+  generateNodeId: () => number;
+  edges: Edge[];
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+  openNodeModal: boolean;
+  setOpenNodeModal: React.Dispatch<React.SetStateAction<boolean>>;
+  addingNode: UMLNode | null | undefined;
+  setAddingNode: React.Dispatch<React.SetStateAction<UMLNode | null | undefined>>;
+  rightClicked: boolean;
+  setRightClicked: React.Dispatch<React.SetStateAction<boolean>>;
+  mouseCoordinate: { x: number, y: number };
+  setMouseCoordinate: React.Dispatch<React.SetStateAction<{ x: number, y: number }>>;
+  isMenuContextActive: boolean;
+  setIsMenuContextActive: React.Dispatch<React.SetStateAction<boolean>>;
+  reactFlowWrapper: React.RefObject<HTMLDivElement>;
+  reactFlowInstance: ReactFlowInstance | null;
+  setReactFlowInstance: React.Dispatch<React.SetStateAction<ReactFlowInstance | null>>;
+  relativeMouseCoordinate: { x: number, y: number };
+  setRelativeMouseCoordinate: React.Dispatch<React.SetStateAction<{ x: number, y: number }>>;
+};
+
 /**
  * The global store of states and functions/methods that are used across the application.
- * @returns {object} The global context of the application.
+ * @returns {GlobalContext} The global context of the application.
  */
-const useGlobalContext = () => {
+const useGlobalContext = (): GlobalContext => {
   /** Nodes are the main elements of the diagram. They can be connected by edges. */
   const INITIAL_NODES: UMLNode[] = [];
   const INITIAL_EDGES: Edge[] = [];
@@ -19,6 +46,10 @@ const useGlobalContext = () => {
 
   const [nodes, setNodes] = useState<UMLNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<Edge[]>(INITIAL_EDGES);
+
+  const getNodes = () => {
+    return nodes;
+  }
 
   const generateNodeId = () => {
     return nodes.length + 1;
@@ -55,6 +86,7 @@ const useGlobalContext = () => {
     DEFAULT_NODE_METHODS,
     nodes,
     setNodes,
+    getNodes,
     generateNodeId,
     edges,
     setEdges,
@@ -74,6 +106,9 @@ const useGlobalContext = () => {
     relativeMouseCoordinate,
     setRelativeMouseCoordinate
   };
-}
+};
 
-export default useGlobalContext;
+export {
+  useGlobalContext,
+  type GlobalContext
+};
