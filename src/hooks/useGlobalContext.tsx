@@ -2,7 +2,6 @@ import { Edge, ReactFlowInstance } from "@xyflow/react";
 import UMLNode, { FieldType, MethodType } from "../model/UMLNode";
 import React, { useState, useRef } from "react";
 import useCanvasRightClick from "./useCanvasRightClick";
-import useAddingNodeModal from "./useAddingNodeModal";
 
 type GlobalContext = {
   DEFAULT_NODE_NAME: string;
@@ -14,10 +13,6 @@ type GlobalContext = {
   generateNodeId: () => number;
   edges: Edge[];
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
-  openNodeModal: boolean;
-  setOpenNodeModal: React.Dispatch<React.SetStateAction<boolean>>;
-  addingNode: UMLNode | null | undefined;
-  setAddingNode: React.Dispatch<React.SetStateAction<UMLNode | null | undefined>>;
   rightClicked: boolean;
   setRightClicked: React.Dispatch<React.SetStateAction<boolean>>;
   mouseCoordinate: { x: number, y: number };
@@ -65,13 +60,6 @@ const useGlobalContext = (): GlobalContext => {
   ] = useState<ReactFlowInstance | null>(null);
 
   const {
-    openNodeModal,
-    setOpenNodeModal,
-    addingNode,
-    setAddingNode,
-  } = useAddingNodeModal();
-
-  const {
     rightClicked,
     setRightClicked,
     mouseCoordinate,
@@ -90,10 +78,6 @@ const useGlobalContext = (): GlobalContext => {
     generateNodeId,
     edges,
     setEdges,
-    openNodeModal,
-    setOpenNodeModal,
-    addingNode,
-    setAddingNode,
     rightClicked,
     setRightClicked,
     mouseCoordinate,
