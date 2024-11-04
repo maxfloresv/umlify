@@ -14,6 +14,10 @@ import {
   addEdge,
   NodeTypes,
   NodeProps,
+  MarkerType,
+  EdgeTypes,
+  OnConnectEnd,
+  ConnectionMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -25,10 +29,16 @@ import Button from "@mui/material/Button";
 
 /** Custom components imports */
 import StyledNode from "./components/StyledNode";
+import AggregationEdge from "./components/edges/AggregationEdge";
+import AssociationEdge from "./components/edges/AssociationEdge";
+import CompositionEdge from "./components/edges/CompositionEdge";
+import DependencyEdge from "./components/edges/DependencyEdge";
+import ImplementationEdge from "./components/edges/ImplementationEdge";
+import InheritanceEdge from "./components/edges/InheritanceEdge";
 
 /** Custom hooks imports */
 import { useGlobalContext, type GlobalContext } from "./hooks/useGlobalContext";
-import { CustomNode } from "./model/UMLNode";
+import UMLNode, { CustomNode } from "./model/UMLNode";
 import Trait from "./model/Trait";
 import AbstractClass from "./model/AbstractClass";
 import ConcreteClass from "./model/ConcreteClass";
@@ -63,15 +73,56 @@ function App() {
     [ctx.setNodes]
   );
 
-  /* TODO in the future
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((edges) => applyEdgeChanges(changes, edges)),
-    [setEdges]
+    (changes) => ctx.setEdges((edges) => {
+      console.log(changes);
+      console.log(edges);
+      return applyEdgeChanges(changes, edges);
+    }),
+    [ctx.setEdges]
   );
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges]
-  );*/
+
+  const onConnectEnd: OnConnectEnd = useCallback(
+    (event, connectionState) => {
+      console.log("a");
+      let validConnection = connectionState.fromNode && connectionState.fromHandle
+        && connectionState.toNode && connectionState.toHandle;
+
+      if (validConnection) {
+        console.log({
+          source: connectionState.fromNode?.id as string,
+          target: connectionState.toNode?.id as string,
+          sourceHandle: connectionState.fromHandle?.id as string,
+          targetHandle: connectionState.toHandle?.id as string,
+        })
+        let nodes: UMLNode[] = [];
+        ctx.setNodes((oldNodes) => {
+          nodes = oldNodes;
+          return oldNodes;
+        });
+        // TODO: Que se puedan saber los nodos source y tareet...
+        console.log("Node source", ctx.nodes.find((n) => n.id === Number(connectionState.fromNode?.id)));
+        console.log("Node target", ctx.nodes.find((n) => n.id === Number(connectionState.toNode?.id)));
+        return ctx.setEdges((edges) => {
+          return addEdge({
+            source: connectionState.fromNode?.id as string,
+            target: connectionState.toNode?.id as string,
+            sourceHandle: connectionState.fromHandle?.id as string,
+            targetHandle: connectionState.toHandle?.id as string,
+            type: 'inheritance',
+            style: {
+              stroke: 'black'
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 30,
+              height: 30,
+              color: 'black'
+            },
+          }, edges);
+        });
+      }
+    }, [ctx.setEdges]);
 
   /** Custom node styling under the StyledNode component. */
   // Empty dependences causes this to not rerender. 
@@ -91,6 +142,15 @@ function App() {
         trait: (props) => createNodeComponent(ctx, props)
       }
     }, []);
+  };
+
+  const edgeTypes: EdgeTypes = {
+    aggregation: AggregationEdge,
+    association: AssociationEdge,
+    composition: CompositionEdge,
+    dependency: DependencyEdge,
+    implementation: ImplementationEdge,
+    inheritance: InheritanceEdge
   };
 
   return (
@@ -165,10 +225,12 @@ function App() {
           nodes={ctx.nodes.map((n) => n.getNode())}
           edges={ctx.edges}
           nodeTypes={CustomNodeTypes(ctx)}
+          edgeTypes={edgeTypes}
           onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
           onInit={ctx.setReactFlowInstance}
-          /* onEdgesChange={onEdgesChange} */
-          /* onConnect={onConnect} */
+          onConnectEnd={onConnectEnd}
+          connectionMode={ConnectionMode.Loose}
           fitView={false}
         >
           <Background />
