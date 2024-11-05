@@ -28,7 +28,7 @@ import ContextMenu from "./styles/menu";
 import Button from "@mui/material/Button";
 
 /** Custom components imports */
-import StyledNode from "./components/StyledNode";
+import StyledNode from "./components/nodes/StyledNode";
 import AggregationEdge from "./components/edges/AggregationEdge";
 import AssociationEdge from "./components/edges/AssociationEdge";
 import CompositionEdge from "./components/edges/CompositionEdge";
