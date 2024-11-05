@@ -25,7 +25,6 @@ type ExtendedEdgeProps = {
  * Represents an abstract edge, without arrow properties and marker.
  * 
  * @param {EdgeProps & ExtendedEdgeProps} props - The edge properties. 
- *
  * @returns {JSX.Element | null} The edge to be rendered in the canvas.
  * 
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
@@ -37,7 +36,7 @@ export function AbstractEdge({
   isDashed,
   markerFilled = false,
   markerType,
-  style = {}
+  style = {},
 }: EdgeProps & ExtendedEdgeProps): JSX.Element | null {
   const sourceNode = useInternalNode(source);
   const targetNode = useInternalNode(target);
@@ -98,7 +97,7 @@ export function AbstractEdge({
             id="marker-diamond"
             markerWidth={DIAMOND_FIXED_FACTOR * MARKERS_WIDTH}
             markerHeight={MARKERS_HEIGHT}
-            refX={DIAMOND_FIXED_FACTOR * MARKERS_WIDTH}
+            refX={2.6 * MARKERS_WIDTH}
             refY={MARKERS_HEIGHT / 2}
             orient="auto"
           >

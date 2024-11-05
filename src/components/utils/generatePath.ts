@@ -6,7 +6,6 @@ import { type MarkerTypes } from "../edges/AbstractEdge";
  * @param {MarkerTypes} markerType The marker to be created.
  * @param {number} markerWidth The marker height desired.
  * @param {number} markerHeight The marker width desired.
- * 
  * @returns {string} The path of the marker.
  * 
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
@@ -17,11 +16,19 @@ function generatePath(markerType: MarkerTypes, markerWidth: number, markerHeight
 
   switch (markerType) {
     case 'hat':
-      return `M 0 0 L ${markerWidth} ${halfHeight} L 0 ${markerHeight} Z`;
+      return `M 0 0 
+              L ${markerWidth} ${halfHeight} 
+              L 0 ${markerHeight}`;
     case 'diamond':
-      return `M ${halfWidth / 2} ${halfHeight} L ${halfWidth} 0 L ${halfWidth * 1.5} ${halfHeight} L ${halfWidth} ${markerHeight} Z`;
+      return `M ${halfWidth / 2} ${halfHeight} 
+              L ${halfWidth} 1
+              L ${halfWidth * 1.5} ${halfHeight} 
+              L ${halfWidth} ${markerHeight - 1} Z`;
     case 'triangle':
-      return `M 0 0 L ${markerWidth} ${halfHeight} L 0 ${markerHeight} Z`;
+      return `M 0 0 
+              L ${markerWidth} ${halfHeight} 
+              L 0 ${markerHeight} 
+              Z`;
   }
 }
 
