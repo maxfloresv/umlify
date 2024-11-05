@@ -5,38 +5,39 @@ import {
   useRef
 } from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import UMLNode, { CustomNode, Visibility } from "../model/UMLNode";
+import UMLNode, { CustomNode, Visibility } from "../../model/UMLNode";
 
-import NodeFields from "./nodes/NodeFields";
-import NodeMethods from "./nodes/NodeMethods";
-import NodeHeader from "./nodes/NodeHeader";
+import NodeFields from "./NodeFields";
+import NodeMethods from "./NodeMethods";
+import NodeHeader from "./NodeHeader";
 
-import "./css/paragraph.css";
-import "./css/containers.css";
+import "../css/paragraph.css";
+import "../css/containers.css";
 
 type StyledNodeProps = {
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
   node: NodeProps<CustomNode>;
 };
 
-/** This quantity will define the handles for each side of the node */
-const LEFT_RIGHT_HANDLES = 3;
-
 /**
- * Represents a node in the canvas.
+ * Represents a custom node in the canvas.
  * 
  * @param {StyledNodeProps} props - The properties needed to render the node.
  * @returns {JSX.Element} The node to be rendered in the canvas.
+ * 
+ * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
  */
 const StyledNode = (props: StyledNodeProps): JSX.Element => {
   const { setNodes, node } = props;
   const { data } = node;
+  /** This quantity will define the handles for each side of the node */
+  const LEFT_RIGHT_HANDLES = 3;
 
-  /** Whether the current node is in Edit mode or not */
+  /** Whether the current node is in edit mode or not */
   const [editMode, setEditMode] = useState<boolean>(false);
   // Allows forcing rerenders in this component
-  const [lastChange, setLastChange] = useState<Date | null>(null);
-  /** Set the current panel expanded considering Fields and Methods */
+  const [_, setLastChange] = useState<Date | null>(null);
+  /** Set the current panel expanded considering fields and methods */
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const nodeRef = useRef<HTMLDivElement>(null);
