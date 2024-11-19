@@ -11,8 +11,8 @@ import NodeFields from "./NodeFields";
 import NodeMethods from "./NodeMethods";
 import NodeHeader from "./NodeHeader";
 
-import "../css/paragraph.css";
-import "../css/containers.css";
+import "../styles/paragraph.css";
+import "../styles/containers.css";
 
 type StyledNodeProps = {
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
