@@ -1,6 +1,9 @@
 import { Node } from "@xyflow/react";
 import UMLAbstractClass from "./UMLAbstractClass";
-import { CustomNodeData, FieldType, MethodType } from "./UMLNode";
+import UMLNode, { CustomNodeData, EdgeType, FieldType, MethodType } from "./UMLNode";
+import AbstractClass from "./AbstractClass";
+import Trait from "./Trait";
+import InvalidConnectionException from "../exceptions/InvalidConnectionException";
 
 class ConcreteClass extends UMLAbstractClass {
   node: Node<CustomNodeData, "concreteClass">;
@@ -28,6 +31,22 @@ class ConcreteClass extends UMLAbstractClass {
         editMode: false
       },
     };
+  }
+
+  getEdgeType: (target: UMLNode) => EdgeType = (target) => {
+    return target.concreteClassEdgeType(this);
+  }
+
+  traitEdgeType: (_trait: Trait) => EdgeType = (_trait) => {
+    throw new InvalidConnectionException("A Trait can't be connected with a Concrete Class");
+  }
+
+  abstractClassEdgeType: (_abstractClass: AbstractClass) => EdgeType = (_abstractClass) => {
+    return "inheritance";
+  }
+
+  concreteClassEdgeType: (_concreteClass: ConcreteClass) => EdgeType = (_concreteClass) => {
+    return "inheritance";
   }
 }
 
