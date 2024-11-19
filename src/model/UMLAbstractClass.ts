@@ -1,5 +1,8 @@
 import { Node } from "@xyflow/react";
-import UMLNode, { CustomNodeData, FieldType, MethodType } from "./UMLNode";
+import UMLNode, { EdgeType, FieldType, MethodType } from "./UMLNode";
+import Trait from "./Trait";
+import AbstractClass from "./AbstractClass";
+import ConcreteClass from "./ConcreteClass";
 
 abstract class UMLAbstractClass implements UMLNode {
   id: number;
@@ -49,9 +52,7 @@ abstract class UMLAbstractClass implements UMLNode {
     this.node.data.name = newName;
   }
 
-  updateEditMode: (newStatus: boolean) => void = (newStatus) => {
-    this.node.data.editMode = newStatus;
-  }
+  getName: () => string = () => this.name;
 
   addField: (f: FieldType) => void = (f) => {
     this.fields.push(f);
@@ -69,6 +70,8 @@ abstract class UMLAbstractClass implements UMLNode {
     this.node.data.fields = this.fields;
   }
 
+  getFields: () => FieldType[] = () => this.fields;
+
   addMethod: (m: MethodType) => void = (m) => {
     this.methods.push(m);
     this.node.data.methods = this.methods;
@@ -84,6 +87,13 @@ abstract class UMLAbstractClass implements UMLNode {
     this.methods[index] = newMethod;
     this.node.data.methods = this.methods;
   }
+
+  getMethods: () => MethodType[] = () => this.methods;
+
+  abstract getEdgeType: (target: UMLNode) => EdgeType;
+  abstract traitEdgeType: (trait: Trait) => EdgeType;
+  abstract abstractClassEdgeType: (abstractClass: AbstractClass) => EdgeType;
+  abstract concreteClassEdgeType: (concreteClass: ConcreteClass) => EdgeType;
 }
 
 export default UMLAbstractClass;
