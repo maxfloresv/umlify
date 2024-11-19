@@ -1,11 +1,18 @@
 import {
   BaseEdge,
+  Edge,
+  EdgeLabelRenderer,
   getSmoothStepPath,
+  getStraightPath,
   useInternalNode,
   type EdgeProps,
 } from '@xyflow/react';
 import { getEdgeParams } from '../utils/calculations';
 import generatePath from '../utils/generatePath';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { IconButton } from '@mui/material';
+
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // These are measured in pixels.
 const MARKERS_WIDTH = 18;
@@ -21,10 +28,14 @@ type ExtendedEdgeProps = {
   markerType: MarkerTypes;
 }
 
+export type EdgePropsWithSetter = EdgeProps & {
+  setEdges: Dispatch<SetStateAction<Edge[]>>;
+}
+
 /**
  * Represents an abstract edge, without arrow properties and marker.
  * 
- * @param {EdgeProps & ExtendedEdgeProps} props - The edge properties. 
+ * @param {EdgePropsWithSetter & ExtendedEdgeProps} props - The edge properties. 
  * @returns {JSX.Element | null} The edge to be rendered in the canvas.
  * 
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
@@ -33,15 +44,19 @@ export function AbstractEdge({
   id,
   source,
   target,
+  sourceHandleId,
+  targetHandleId,
   isDashed,
   markerFilled = false,
   markerType,
-  style = {},
-}: EdgeProps & ExtendedEdgeProps): JSX.Element | null {
+  style = { stroke: 'black' },
+  setEdges
+}: EdgePropsWithSetter & ExtendedEdgeProps): JSX.Element | null {
+  const [mouseHover, setMouseHover] = useState<boolean>(false);
   const sourceNode = useInternalNode(source);
   const targetNode = useInternalNode(target);
 
-  if (!sourceNode || !targetNode) {
+  if (!sourceNode || !targetNode || !sourceHandleId || !targetHandleId) {
     return null;
   }
 
@@ -55,16 +70,19 @@ export function AbstractEdge({
   } = getEdgeParams(
     sourceNode,
     targetNode,
+    sourceHandleId,
+    targetHandleId
   );
 
-  const [edgePath] = getSmoothStepPath({
+
+  const [edgePath, labelX, labelY] = getStraightPath({
     sourceX,
     sourceY,
-    sourcePosition,
+    //sourcePosition,
     targetX,
     targetY,
-    targetPosition,
-    borderRadius: 0
+    //targetPosition,
+    //borderRadius: 0
   });
 
   // Extends the design if the arrow has to be dashed.
@@ -72,6 +90,17 @@ export function AbstractEdge({
     strokeDasharray: isDashed ? '5 5' : '0',
     ...style
   };
+
+  /**
+   * Deletes this edge from the global storage.
+   * 
+   * @param {React.SyntheticEvent} _event - Unused. The event that triggered the deletion.
+   */
+  const handleDeletingEdge = (_event: React.SyntheticEvent) => {
+    setEdges((oldEdges) => {
+      return oldEdges.filter((edge) => edge.id !== id);
+    })
+  }
 
   return (
     <>
@@ -126,12 +155,34 @@ export function AbstractEdge({
         )}
       </defs>
 
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        markerEnd={`url(#marker-${markerType})`}
-        style={edgeStyle}
-      />
+      <g
+        onMouseEnter={() => setMouseHover(true)}
+        onMouseLeave={() => setMouseHover(false)}
+      >
+        <BaseEdge
+          id={id}
+          path={edgePath}
+          markerStart={markerType === 'diamond' ? `url(#marker-${markerType})` : undefined}
+          markerEnd={markerType === 'diamond' ? undefined : `url(#marker-${markerType})`}
+          style={edgeStyle}
+        />
+
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              fontSize: 12,
+              pointerEvents: 'all',
+            }}
+            className="nodrag nopan"
+          >
+            {mouseHover && <IconButton className="edgebutton" onClick={handleDeletingEdge}>
+              <DeleteIcon />
+            </IconButton>}
+          </div>
+        </EdgeLabelRenderer>
+      </g>
     </>
   );
 }
