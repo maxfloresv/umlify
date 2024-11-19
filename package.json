@@ -20,7 +20,8 @@
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@mui/system": "^6.0.2",
-    "@mui/icons-material": "^5.16.7"
+    "@mui/icons-material": "^5.16.7",
+    "html-to-image": "^1.11.11"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
