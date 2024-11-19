@@ -21,15 +21,20 @@ interface EdgeParams {
 };
 
 /**
- * Calculates dynamically the handle to use in a node for a connection, based on center distances.
+ * Calculates dynamically the handle position to use in a node for a connection, based on center distances.
  * Note that it receives two nodes, because an edge can only have two members in its definition.
  * 
  * @param {InternalNode<Node>} nodeA - The node of interest to calculate its handle positioning.
  * @param {InternalNode<Node>} nodeB - The other node related to this connection.
+ * @param {string} handleId - The base handle identifier of nodeA.
  * 
  * @returns {[number, number, Position]} The handle positioning.
  */
-function getParams(nodeA: InternalNode<Node>, nodeB: InternalNode<Node>): [number, number, Position] {
+function getParams(
+  nodeA: InternalNode<Node>,
+  nodeB: InternalNode<Node>,
+  handleId: string,
+): [number, number, Position] {
   const centerA = getNodeCenter(nodeA);
   const centerB = getNodeCenter(nodeB);
 
@@ -47,7 +52,7 @@ function getParams(nodeA: InternalNode<Node>, nodeB: InternalNode<Node>): [numbe
     position = centerA.y > centerB.y ? Position.Top : Position.Bottom;
   }
 
-  const [x, y] = getHandleCoordsByPosition(nodeA, position);
+  const [x, y] = getHandleCoordsByPosition(nodeA, position, handleId);
   return [x, y, position];
 }
 
@@ -56,10 +61,15 @@ function getParams(nodeA: InternalNode<Node>, nodeB: InternalNode<Node>): [numbe
  * 
  * @param {InternalNode<Node>} node - The node that have the handle.
  * @param {Position} handlePosition - The position of the handle.
+ * @param {string} handleId - The base handle identifier.
  * 
  * @returns {[number, number]} The coordinates of the handle.
  */
-function getHandleCoordsByPosition(node: InternalNode<Node>, handlePosition: Position): [number, number] {
+function getHandleCoordsByPosition(
+  node: InternalNode<Node>,
+  handlePosition: Position,
+  handleId: string
+): [number, number] {
   if (!node.internals.handleBounds
     || !node.internals.handleBounds.source
     || (node.internals.handleBounds.target
@@ -67,8 +77,15 @@ function getHandleCoordsByPosition(node: InternalNode<Node>, handlePosition: Pos
     throw new InvalidHandleException();
   }
 
+  /**
+   * The base handle identifier has the form xxxx-xxxx-id, where id is a number
+   * that identifies a handle given a certain position (similar to a number line).
+   * 
+   * @see {StyledNode} for further information.
+   */
+  const positionId = handleId.split("-").pop() as string;
   const handle = node.internals.handleBounds.source.find(
-    (h) => h.position === handlePosition,
+    (h) => h.position === handlePosition && h.id?.endsWith(positionId)
   );
 
   if (!handle) {
@@ -77,22 +94,6 @@ function getHandleCoordsByPosition(node: InternalNode<Node>, handlePosition: Pos
 
   let offsetX: number = handle.width / 2;
   let offsetY: number = handle.height / 2;
-
-  // This is a detail to make the end marker of an edge visible.
-  switch (handlePosition) {
-    case Position.Left:
-      offsetX = 0;
-      break;
-    case Position.Right:
-      offsetX = handle.width;
-      break;
-    case Position.Top:
-      offsetY = 0;
-      break;
-    case Position.Bottom:
-      offsetY = handle.height;
-      break;
-  }
 
   const x = node.internals.positionAbsolute.x + handle.x + offsetX;
   const y = node.internals.positionAbsolute.y + handle.y + offsetY;
@@ -124,12 +125,19 @@ function getNodeCenter(node: InternalNode<Node>): { x: number; y: number } {
  *  
  * @param {InternalNode<Node>} source - The source node.
  * @param {InternalNode<Node>} target - The target node.
+ * @param {string} sourceHandleId - Source node's original handle identifier.
+ * @param {string} targetHandleId - Target node's original handle identifier.
  * 
  * @returns {EdgeParams} The necessary parameters to create the edge.
  */
-export function getEdgeParams(source: InternalNode<Node>, target: InternalNode<Node>): EdgeParams {
-  const [sx, sy, sourcePos] = getParams(source, target);
-  const [tx, ty, targetPos] = getParams(target, source);
+export function getEdgeParams(
+  source: InternalNode<Node>,
+  target: InternalNode<Node>,
+  sourceHandleId: string,
+  targetHandleId: string
+): EdgeParams {
+  const [sx, sy, sourcePos] = getParams(source, target, sourceHandleId);
+  const [tx, ty, targetPos] = getParams(target, source, targetHandleId);
 
   return {
     sx,
