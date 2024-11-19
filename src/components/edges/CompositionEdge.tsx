@@ -1,5 +1,4 @@
-import { EdgeProps } from "@xyflow/react";
-import { AbstractEdge } from "./AbstractEdge"
+import { AbstractEdge, EdgePropsWithSetter } from "./AbstractEdge"
 
 /**
  * Represents a Composition Edge in an UML diagram.
@@ -9,7 +8,7 @@ import { AbstractEdge } from "./AbstractEdge"
  * 
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
  */
-const CompositionEdge = (props: EdgeProps): JSX.Element => {
+const CompositionEdge = (props: EdgePropsWithSetter): JSX.Element => {
   return (
     <AbstractEdge
       {...props}

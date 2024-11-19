@@ -1,5 +1,4 @@
-import { EdgeProps } from "@xyflow/react";
-import { AbstractEdge } from "./AbstractEdge"
+import { AbstractEdge, EdgePropsWithSetter } from "./AbstractEdge"
 
 /**
  * Represents a Dependency Edge in an UML diagram.
@@ -9,7 +8,7 @@ import { AbstractEdge } from "./AbstractEdge"
  * 
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
  */
-const DependencyEdge = (props: EdgeProps): JSX.Element => {
+const DependencyEdge = (props: EdgePropsWithSetter): JSX.Element => {
   return (
     <AbstractEdge
       {...props}
