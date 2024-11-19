@@ -1,8 +1,13 @@
-import { Node } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
+import Trait from "./Trait";
+import AbstractClass from "./AbstractClass";
+import ConcreteClass from "./ConcreteClass";
 
 export type Type = string;
 export type Visibility = "public" | "protected" | "private";
 export type ClassType = "trait" | "concreteClass" | "abstractClass";
+export type EdgeType = "aggregation" | "association" | "composition"
+  | "dependency" | "implementation" | "inheritance" | never;
 
 export interface MethodType {
   name: string;
@@ -42,11 +47,18 @@ export default interface UMLNode {
   // This is a library-dependant (@xy/react) method.
   updatePosition: (n: Node) => void;
   updateName: (s: string) => void;
-  updateEditMode: (b: boolean) => void;
+  getName: () => string;
   updateField: (f: FieldType, newField: FieldType) => void;
   addField: (f: FieldType) => void;
   removeField: (f: FieldType) => void;
+  getFields: () => FieldType[];
   updateMethod: (m: MethodType, newMethod: MethodType) => void;
   addMethod: (m: MethodType) => void;
   removeMethod: (m: MethodType) => void;
+  getMethods: () => MethodType[];
+  // Double dispatch methods
+  getEdgeType: (target: UMLNode) => EdgeType;
+  traitEdgeType: (trait: Trait) => EdgeType;
+  abstractClassEdgeType: (abstractClass: AbstractClass) => EdgeType;
+  concreteClassEdgeType: (concreteClass: ConcreteClass) => EdgeType;
 }
