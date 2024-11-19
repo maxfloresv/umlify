@@ -109,6 +109,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                         label="Field Name"
                         variant="standard"
                         defaultValue={field.name}
+                        size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
                             const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
@@ -130,6 +131,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                         label="Field Type"
                         variant="standard"
                         defaultValue={field.type}
+                        size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
                             const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
@@ -155,6 +157,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                         sx={{ overflow: "visible", zIndex: 9999 }}
                         value={field.visibility}
                         label="Visibility"
+                        size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
                             const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);

@@ -29,6 +29,7 @@ type NodeHeaderProps = {
   setEditMode: Dispatch<SetStateAction<boolean>>;
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
   forceUpdate: () => void;
+  mouseHover: boolean;
 };
 
 const NodeHeader = (props: NodeHeaderProps) => {
@@ -38,7 +39,8 @@ const NodeHeader = (props: NodeHeaderProps) => {
     editMode,
     setEditMode,
     setNodes,
-    forceUpdate
+    forceUpdate,
+    mouseHover
   } = props;
 
   return (
@@ -57,6 +59,7 @@ const NodeHeader = (props: NodeHeaderProps) => {
                 label="Class Name"
                 variant="standard"
                 defaultValue={data.name}
+                size="small"
                 onChange={(e) => {
                   setNodes((oldNodes) => {
                     const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
@@ -75,6 +78,7 @@ const NodeHeader = (props: NodeHeaderProps) => {
                   sx={{ overflow: "visible", zIndex: 9999 }}
                   value={node.type}
                   label="Change Type"
+                  size="small"
                   onChange={(e) => {
                     if (e.target.value === node.type)
                       return;
@@ -132,17 +136,21 @@ const NodeHeader = (props: NodeHeaderProps) => {
         }
 
         <div style={{ position: "absolute", top: 0, right: 0 }}>
-          {editMode ?
-            <Tooltip placement="top" title="Exit Edit mode" arrow>
-              <IconButton onClick={() => setEditMode(false)}>
-                <LogoutIcon />
-              </IconButton>
-            </Tooltip> :
-            <Tooltip placement="top" title="Enter Edit mode" arrow>
-              <IconButton onClick={() => setEditMode(true)}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
+          {mouseHover &&
+            <>
+              {editMode ?
+                <Tooltip placement="top" title="Exit Edit mode" arrow>
+                  <IconButton onClick={() => setEditMode(false)}>
+                    <LogoutIcon />
+                  </IconButton>
+                </Tooltip> :
+                <Tooltip placement="top" title="Enter Edit mode" arrow>
+                  <IconButton onClick={() => setEditMode(true)}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+              }
+            </>
           }
         </div>
       </div>
