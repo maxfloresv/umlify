@@ -30,8 +30,12 @@ type StyledNodeProps = {
 const StyledNode = (props: StyledNodeProps): JSX.Element => {
   const { setNodes, node } = props;
   const { data } = node;
-  /** This quantity will define the handles for each side of the node */
+  /** Defines the handles for each side of the node */
   const LEFT_RIGHT_HANDLES = 3;
+  const DEFAULT_HANDLE_STYLE = {
+    width: 10,
+    height: 10,
+  }
 
   /** Whether the current node is in edit mode or not */
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -39,6 +43,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
   const [_, setLastChange] = useState<Date | null>(null);
   /** Set the current panel expanded considering fields and methods */
   const [expanded, setExpanded] = useState<string | false>(false);
+  const [mouseHover, setMouseHover] = useState<boolean>(false);
 
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -70,11 +75,11 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
   /**
    * Creates an array of handles to be rendered in a certain position of the node.
    * 
-   * @param {Position.Left | Position.Right} position - The position of the handles relative to the node.
+   * @param {Position} position - The position of the handles in the node.
    * @param {number} numHandles - The number of handles to be created.
    * @returns {JSX.Element[]} An array of handles to be rendered.
    */
-  const createMultipleHandles = (position: Position.Left | Position.Right, numHandles: number): JSX.Element[] => {
+  const createMultipleHandles = (position: Position, numHandles: number): JSX.Element[] => {
     let identifier: string;
     let handles: JSX.Element[] = [];
 
@@ -85,13 +90,39 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
       case Position.Right:
         identifier = "right";
         break;
+      case Position.Top:
+        identifier = "top";
+        break;
+      case Position.Bottom:
+        identifier = "bottom";
+        break;
     }
+
+    /**
+     * Generates equispaced handles given a certain position in the node.
+     * 
+     * @param {number} id The identifier in the handle line. 
+     * @returns {React.CSSProperties} The style of the handle.
+     */
+    const defineStyle = (id: number): React.CSSProperties => ({
+      ...DEFAULT_HANDLE_STYLE,
+      visibility: mouseHover ? "visible" : "hidden",
+      top: position === Position.Left || position === Position.Right
+        ? `${100 * id / (numHandles + 1)}%`
+        : (position === Position.Top
+          ? 0
+          : 'auto'),
+      left: position === Position.Top || position === Position.Bottom
+        ? `${100 * id / (numHandles + 1)}%`
+        : 'auto'
+    });
 
     for (let i = 1; i <= numHandles; i++) {
       handles.push(<Handle
         type="source"
         position={position}
         id={`${identifier}-handle-${i}`}
+        style={defineStyle(i)}
       />);
     }
 
@@ -103,14 +134,20 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
     data,
     setNodes,
     editMode,
-    forceUpdate
+    forceUpdate,
+    mouseHover
   };
 
   return (
     <>
-      <div ref={nodeRef} style={{ maxWidth: "425px" }}>
-        <Handle type="source" position={Position.Top} id="top-handle" />
-        <Handle type="source" position={Position.Bottom} id="bottom-handle" />
+      <div
+        onMouseEnter={() => setMouseHover(true)}
+        onMouseLeave={() => setMouseHover(false)}
+        ref={nodeRef}
+        style={{ maxWidth: "425px" }}
+      >
+        {createMultipleHandles(Position.Top, LEFT_RIGHT_HANDLES)}
+        {createMultipleHandles(Position.Bottom, LEFT_RIGHT_HANDLES)}
         {createMultipleHandles(Position.Left, LEFT_RIGHT_HANDLES)}
         {createMultipleHandles(Position.Right, LEFT_RIGHT_HANDLES)}
 
