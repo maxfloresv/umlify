@@ -49,12 +49,13 @@ const NodeFields = (props: NodeFieldsProps) => {
     editMode,
     forceUpdate
   } = props;
+
   return (
     <>
       <div className="field-container">
         {!editMode ?
           data.fields.map((field: FieldType, id: number) => (
-            <p key={`field-${field.name}-${id}-${data.name}`}>
+            <p key={`field-${field.name}-${id}`}>
               {drawVisibility(field.visibility)} {field.name}: {field.type}
             </p>
           )) :
@@ -74,6 +75,7 @@ const NodeFields = (props: NodeFieldsProps) => {
             {data.fields.map((field: FieldType, i: number) => {
               return (
                 <Accordion
+                  key={`accordion-field-${i}`}
                   expanded={expanded === `panel-fields${i}`}
                   onChange={handlePanelChange(`panel-fields${i}`)}
                 >
@@ -84,7 +86,9 @@ const NodeFields = (props: NodeFieldsProps) => {
                         aria-controls={`panel-fields-${i}-content`}
                         id={`panel-fields-${i}-header`}
                       >
-                        <Typography>{drawVisibility(field.visibility)} {field.name}: {field.type}</Typography>
+                        <Typography>
+                          {drawVisibility(field.visibility)} {field.name}: {field.type}
+                        </Typography>
                       </AccordionSummary>
                     </div>
 
@@ -150,7 +154,9 @@ const NodeFields = (props: NodeFieldsProps) => {
                     </div>
 
                     <FormControl fullWidth>
-                      <InputLabel id={`field-${i}-visibility`}>Visibility</InputLabel>
+                      <InputLabel id={`field-${i}-visibility`}>
+                        Visibility
+                      </InputLabel>
                       <Select
                         labelId={`field-${i}-visibility`}
                         id={`field-${i}-visibility-select`}

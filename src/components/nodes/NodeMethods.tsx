@@ -64,10 +64,10 @@ const NodeMethods = (props: NodeMethodsProps) => {
         {!editMode ?
           data.methods.map((method: MethodType, id: number) => {
             return (
-              <p style={method.abstract ? { fontStyle: "italic" } : {}} key={`method-${method.name}-${id}`}>
+              <p key={`method-${method.name}-${id}`} style={method.abstract ? { fontStyle: "italic" } : {}}>
                 {drawVisibility(method.visibility)} {method.name}
                 {"("}
-                {method.domType.map((t) => t).join(", ")}
+                {method.domType.join(", ")}
                 {"): "}
                 {method.codType ? method.codType : "Unit"}
               </p>
@@ -90,6 +90,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
             {data.methods.map((method: MethodType, i: number) => {
               return (
                 <Accordion
+                  key={`accordion-method-${i}`}
                   expanded={expanded === `panel-methods${i}`}
                   onChange={handlePanelChange(`panel-methods${i}`)}
                 >
@@ -103,7 +104,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         <Typography>
                           {drawVisibility(method.visibility)} {method.name}
                           {"("}
-                          {method.domType.map((t) => t).join(", ")}
+                          {method.domType.join(", ")}
                           {"): "}
                           {method.codType ? method.codType : "Unit"}
                         </Typography>

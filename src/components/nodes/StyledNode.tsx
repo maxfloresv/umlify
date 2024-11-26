@@ -119,6 +119,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
 
     for (let i = 1; i <= numHandles; i++) {
       handles.push(<Handle
+        key={`${identifier}-handle-${i}`}
         type="source"
         position={position}
         id={`${identifier}-handle-${i}`}
