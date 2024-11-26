@@ -44,6 +44,8 @@ import AbstractClass from "./model/AbstractClass";
 import ConcreteClass from "./model/ConcreteClass";
 import InvalidConnectionException from "./exceptions/InvalidConnectionException";
 import ExportButton from "./components/ExportButton";
+import DownloadJSON from "./components/DownloadJSON";
+import UploadJSON from "./components/UploadJSON";
 
 function App() {
   const ctx: GlobalContext = useGlobalContext();
@@ -272,6 +274,8 @@ function App() {
           fitView={false}
         >
           <Panel style={{ backgroundColor: "white" }} position="top-right">
+            <UploadJSON setNodes={ctx.setNodes} setEdges={ctx.setEdges} />
+            <DownloadJSON nodes={ctx.nodes} edges={ctx.edges} />
             <ExportButton nodes={ctx.nodes.map((n) => n.getNode())} />
           </Panel>
           <Background />
