@@ -16,7 +16,7 @@ class AbstractClass extends UMLAbstractClass {
     x: number,
     y: number
   ) {
-    super(id, name, methods, fields, x, y);
+    super(id, name, methods, fields, x, y, "abstractClass");
     this.name = name;
     this.id = id;
     this.methods = methods;
@@ -31,8 +31,7 @@ class AbstractClass extends UMLAbstractClass {
         methods: this.methods,
         fields: this.fields,
         styleClass: "abstract-paragraph",
-        additionalText: null,
-        editMode: false
+        additionalText: null
       },
     };
   }

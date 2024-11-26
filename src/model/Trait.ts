@@ -16,7 +16,7 @@ class Trait extends UMLAbstractClass {
     x: number,
     y: number
   ) {
-    super(id, name, methods, fields, x, y);
+    super(id, name, methods, fields, x, y, "trait");
     this.node = {
       id: String(this.id),
       type: "trait",
@@ -27,8 +27,7 @@ class Trait extends UMLAbstractClass {
         methods: this.methods,
         fields: this.fields,
         styleClass: "trait-paragraph",
-        additionalText: "«interface»",
-        editMode: false
+        additionalText: "«interface»"
       },
     };
   }

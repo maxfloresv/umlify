@@ -16,7 +16,7 @@ class ConcreteClass extends UMLAbstractClass {
     x: number,
     y: number
   ) {
-    super(id, name, methods, fields, x, y);
+    super(id, name, methods, fields, x, y, "concreteClass");
     this.node = {
       id: String(this.id),
       type: "concreteClass",
@@ -27,8 +27,7 @@ class ConcreteClass extends UMLAbstractClass {
         methods: this.methods,
         fields: this.fields,
         styleClass: "concrete-paragraph",
-        additionalText: null,
-        editMode: false
+        additionalText: null
       },
     };
   }

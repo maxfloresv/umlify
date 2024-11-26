@@ -1,5 +1,5 @@
 import { Node } from "@xyflow/react";
-import UMLNode, { EdgeType, FieldType, MethodType } from "./UMLNode";
+import UMLNode, { ClassType, EdgeType, FieldType, MethodType } from "./UMLNode";
 import Trait from "./Trait";
 import AbstractClass from "./AbstractClass";
 import ConcreteClass from "./ConcreteClass";
@@ -13,6 +13,7 @@ abstract class UMLAbstractClass implements UMLNode {
   protected extends: UMLNode[] = [];
   x: number;
   y: number;
+  classType: ClassType;
 
   constructor(
     id: number,
@@ -20,7 +21,8 @@ abstract class UMLAbstractClass implements UMLNode {
     methods: MethodType[],
     fields: FieldType[],
     x: number,
-    y: number
+    y: number,
+    classType: ClassType
   ) {
     this.name = name;
     this.id = id;
@@ -28,6 +30,7 @@ abstract class UMLAbstractClass implements UMLNode {
     this.fields = fields;
     this.x = x;
     this.y = y;
+    this.classType = classType;
   }
 
   addExtends: (c: UMLNode) => void = (c) => {

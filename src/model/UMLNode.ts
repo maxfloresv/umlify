@@ -30,7 +30,6 @@ export type CustomNodeData = {
   fields: FieldType[];
   styleClass: string;
   additionalText: string | null;
-  editMode: boolean;
 }
 
 export type CustomNode = Node<CustomNodeData, ClassType>;
@@ -40,6 +39,9 @@ export default interface UMLNode {
   name: string;
   methods: MethodType[];
   fields: FieldType[];
+  x: number;
+  y: number;
+  classType: ClassType;
   addExtends: (c: UMLNode) => void;
   removeExtends: (c: UMLNode) => void;
   node: Node;
