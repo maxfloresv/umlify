@@ -35,7 +35,7 @@ const useGlobalContext = (): GlobalContext => {
   const INITIAL_NODES: UMLNode[] = [];
   const INITIAL_EDGES: Edge[] = [];
 
-  const DEFAULT_NODE_NAME: string = "";
+  const DEFAULT_NODE_NAME: string = "ClassName";
   const DEFAULT_NODE_FIELDS: FieldType[] = [];
   const DEFAULT_NODE_METHODS: MethodType[] = [];
 
