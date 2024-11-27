@@ -128,6 +128,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                   <AccordionDetails>
                     <div className="two-cols-container">
                       <TextField
+                        size="small"
                         id={`method-${i}-name`}
                         label="Method Name"
                         variant="standard"
@@ -149,6 +150,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                       />
 
                       <TextField
+                        size="small"
                         id={`method-${i}-codType`}
                         label="Method Codomain Type"
                         variant="standard"
@@ -171,12 +173,16 @@ const NodeMethods = (props: NodeMethodsProps) => {
                     </div>
 
                     <Autocomplete
+                      size="small"
                       sx={{ maxWidth: 'inherit', marginBottom: "20px" }}
                       multiple
                       id="method-tags-standard"
                       options={[]}
                       value={method.domType}
                       freeSolo
+                      // Allows to insert a value more than one time
+                      isOptionEqualToValue={() => false}
+                      limitTags={2}
                       onChange={(_, newValue: readonly string[]) => {
                         if (newValue && newValue.length >= 0) {
                           setNodes((oldNodes) => {
@@ -220,6 +226,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                       <FormControl fullWidth>
                         <InputLabel id={`method-${i}-visibility`}>Visibility</InputLabel>
                         <Select
+                          size="small"
                           labelId={`method-${i}-visibility`}
                           id={`method-${i}-visibility-select`}
                           sx={{ overflow: "visible", zIndex: 9999 }}
@@ -251,6 +258,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         <FormControlLabel
                           control={
                             <Checkbox
+                              size="small"
                               checked={method.abstract}
                               onChange={(_) => {
                                 setNodes((oldNodes) => {
