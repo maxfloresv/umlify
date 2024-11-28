@@ -74,7 +74,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
             );
           }) :
           <>
-            <Button onClick={() => {
+            <Button size="small" onClick={() => {
               setNodes((oldNodes) => {
                 return oldNodes.map((node: UMLNode) => {
                   if (node.id === data.id) {
@@ -85,7 +85,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                 });
               });
               forceUpdate();
-            }} variant="text" startIcon={<AddIcon />}>Add method</Button>
+            }} variant="text" startIcon={<AddIcon fontSize="small" />}>Add method</Button>
 
             {data.methods.map((method: MethodType, i: number) => {
               return (
@@ -97,7 +97,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                   <Box sx={{ display: "flex", minWidth: "100%" }}>
                     <div style={{ width: "100%" }}>
                       <AccordionSummary
-                        expandIcon={<ArrowDownwardIcon />}
+                        expandIcon={<ArrowDownwardIcon fontSize="small" />}
                         aria-controls={`panel-methods-${i}-content`}
                         id={`panel-methods-${i}-header`}
                       >
@@ -112,7 +112,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                     </div>
 
                     <div style={{ width: "fit-content", alignContent: "center" }}>
-                      <IconButton onClick={() => {
+                      <IconButton size="small" onClick={() => {
                         setNodes((oldNodes) => {
                           const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                           retrievedNode.removeMethod(method);
@@ -120,7 +120,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         });
                         forceUpdate();
                       }}>
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </div>
                   </Box>
@@ -206,7 +206,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         value.map((option: string, index: number) => {
                           const { key, ...tagProps } = getTagProps({ index });
                           return (
-                            <Chip variant="outlined" label={option} key={key} {...tagProps} />
+                            <Chip size="small" variant="outlined" label={option} key={key} {...tagProps} />
                           );
                         })
                       }
@@ -214,6 +214,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         return (
                           <TextField
                             {...params}
+                            size="small"
                             variant="standard"
                             label="Method Domain Type(s)"
                             placeholder="Type and press Enter"
@@ -223,8 +224,8 @@ const NodeMethods = (props: NodeMethodsProps) => {
                     />
 
                     <div className="two-cols-container" style={{ marginBottom: 0 }}>
-                      <FormControl fullWidth>
-                        <InputLabel id={`method-${i}-visibility`}>Visibility</InputLabel>
+                      <FormControl size="small" fullWidth>
+                        <InputLabel size="small" id={`method-${i}-visibility`}>Visibility</InputLabel>
                         <Select
                           size="small"
                           labelId={`method-${i}-visibility`}
