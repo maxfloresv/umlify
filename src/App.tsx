@@ -1,4 +1,10 @@
-import { useEffect, useCallback, useMemo, SetStateAction, Dispatch } from "react";
+import {
+  useEffect,
+  useCallback,
+  useMemo,
+  SetStateAction,
+  Dispatch,
+} from "react";
 import {
   ReactFlow,
   Background,
@@ -42,7 +48,7 @@ function App() {
   const ctx: GlobalContext = useGlobalContext();
 
   /** This handles the right-clicks on the canvas. */
-  // Reference: https://blog.logrocket.com/creating-react-context-menu/ 
+  // Reference: https://blog.logrocket.com/creating-react-context-menu/
   useEffect(() => {
     const handleClick = () => ctx.setRightClicked(false);
     window.addEventListener("click", handleClick);
@@ -65,16 +71,17 @@ function App() {
           }
 
           return [...nodes];
-        })
+        });
       }
     },
     [ctx.setNodes]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => ctx.setEdges((edges) => {
-      return applyEdgeChanges(changes, edges);
-    }),
+    (changes) =>
+      ctx.setEdges((edges) => {
+        return applyEdgeChanges(changes, edges);
+      }),
     [ctx.setEdges]
   );
 
@@ -87,13 +94,14 @@ function App() {
 
         return newNodes;
       });
-    }, [ctx.nodes, ctx.edges]
-  )
+    },
+    [ctx.nodes, ctx.edges]
+  );
 
   /**
    * Applies a set of rules in UML construction to determine the type of edge between two nodes.
-   * 
-   * @param {UMLNode} source The source node. 
+   *
+   * @param {UMLNode} source The source node.
    * @param {UMLNode} target The target node.
    * @returns {EdgeType} The type of the edge between the source and target nodes.
    */
@@ -108,15 +116,15 @@ function App() {
    * @returns {boolean} True if the type is composed of the target class name, otherwise false.
    */
   function isTypeComposed(type: string, target: string): boolean {
-    let startIndex, endIndex: number | null = null;
+    let startIndex,
+      endIndex: number | null = null;
 
     for (let i = 0; i < type.length; i++) {
       if (type[i] === "[") {
         startIndex = i;
       } else if (type[i] === "]") {
         while (i < type.length) {
-          if (type[i] === "]")
-            endIndex = i;
+          if (type[i] === "]") endIndex = i;
 
           i++;
         }
@@ -124,8 +132,7 @@ function App() {
     }
 
     // There's a [ or ] character missing, so it can't be a composition.
-    if (!startIndex || !endIndex)
-      return false;
+    if (!startIndex || !endIndex) return false;
 
     // We don't wanna include the [ and ] characters.
     const composition = type.slice(startIndex + 1, endIndex);
@@ -143,8 +150,13 @@ function App() {
 
   const onConnectEnd: OnConnectEnd = (_event, connectionState) => {
     // We can only proceed when the connection is clearly between two nodes.
-    if (connectionState.fromNode && connectionState.fromHandle
-      && connectionState.toNode && connectionState.toHandle) {
+    console.log(_event, connectionState);
+    if (
+      connectionState.fromNode &&
+      connectionState.fromHandle &&
+      connectionState.toNode &&
+      connectionState.toHandle
+    ) {
       const sourceId = connectionState.fromNode.id;
       const targetId = connectionState.toNode.id;
 
@@ -157,19 +169,35 @@ function App() {
         (node) => node.id === Number(targetId)
       ) as UMLNode;
 
-      let edgeTypes: { type: EdgeType, id: number }[] = [];
+      let edgeTypes: { type: EdgeType; id: number }[] = [];
 
-      const [targetHandleNumber] = (connectionState.toHandle.id as string)
+      //TODO: remove
+      const [sourceHandleNumber] = (connectionState.fromHandle.id as string)
         .split("-")
         .slice(-1);
 
+      switch (sourceHandleNumber) {
+        case "1":
+          edgeTypes.push({ type: "association", id: 1 });
+          break;
+        case "2":
+          let inheritance = defineEdgeType(sourceNode, targetNode);
+          edgeTypes.push({ type: inheritance, id: 2 });
+          break;
+        default:
+          edgeTypes.push({ type: "aggregation", id: 3 });
+          break;
+      }
+      /*
       const targetName = targetNode.getName();
       const sourceFields = sourceNode.getFields();
       const sourceMethods = sourceNode.getMethods();
 
       const fieldUses = sourceFields.some((field) => field.type == targetName);
       const methodUses = sourceMethods.some((method) => {
-        return method.domType.includes(targetName) || method.codType == targetName;
+        return (
+          method.domType.includes(targetName) || method.codType == targetName
+        );
       });
 
       if (fieldUses || methodUses) {
@@ -184,30 +212,40 @@ function App() {
       }
 
       const fieldCompositions = sourceFields.some((field) => {
-        return isTypeComposed(field.type, targetName)
+        return isTypeComposed(field.type, targetName);
       });
 
       const methodCompositions = sourceMethods.some((method) => {
-        return isTypeComposed(method.codType as string, targetName)
-          || method.domType.some((type) => isTypeComposed(type, targetName));
+        return (
+          isTypeComposed(method.codType as string, targetName) ||
+          method.domType.some((type) => isTypeComposed(type, targetName))
+        );
       });
 
       if (fieldCompositions || methodCompositions) {
         edgeTypes.push({ type: "aggregation", id: 3 });
       }
-
-      if (edgeTypes.length === 0)
-        return;
+      */
+      if (edgeTypes.length === 0) return;
 
       let newEdges = ctx.edges;
       for (let { type, id } of edgeTypes) {
-        newEdges = addEdge({
-          source: sourceId,
-          target: targetId,
-          sourceHandle: setHandleId(connectionState.fromHandle?.id as string, id),
-          targetHandle: setHandleId(connectionState.toHandle?.id as string, id),
-          type
-        }, newEdges);
+        newEdges = addEdge(
+          {
+            source: sourceId,
+            target: targetId,
+            sourceHandle: setHandleId(
+              connectionState.fromHandle?.id as string,
+              id
+            ),
+            targetHandle: setHandleId(
+              connectionState.toHandle?.id as string,
+              id
+            ),
+            type,
+          },
+          newEdges
+        );
       }
 
       ctx.setEdges(newEdges);
@@ -215,14 +253,13 @@ function App() {
   };
 
   /** Custom node styling under the StyledNode component. */
-  // Empty dependences causes this to not rerender. 
+  // Empty dependences causes this to not rerender.
 
-  const createNodeComponent = (ctx: GlobalContext, props: NodeProps<CustomNode>) => (
-    <StyledNode
-      setNodes={ctx.setNodes}
-      setEdges={ctx.setEdges}
-      node={props}
-    />
+  const createNodeComponent = (
+    ctx: GlobalContext,
+    props: NodeProps<CustomNode>
+  ) => (
+    <StyledNode setNodes={ctx.setNodes} setEdges={ctx.setEdges} node={props} />
   );
 
   function CustomNodeTypes(ctx: GlobalContext): NodeTypes {
@@ -230,32 +267,41 @@ function App() {
       return {
         abstractClass: (props) => createNodeComponent(ctx, props),
         concreteClass: (props) => createNodeComponent(ctx, props),
-        trait: (props) => createNodeComponent(ctx, props)
-      }
+        trait: (props) => createNodeComponent(ctx, props),
+      };
     }, []);
-  };
+  }
 
-  function CustomEdgeTypes(edgeSetter: Dispatch<SetStateAction<Edge[]>>): EdgeTypes {
+  function CustomEdgeTypes(
+    edgeSetter: Dispatch<SetStateAction<Edge[]>>
+  ): EdgeTypes {
     return useMemo(() => {
       const setterProperty = { setEdges: edgeSetter };
       return {
-        aggregation: (props) => AggregationEdge({ ...props, ...setterProperty }),
-        association: (props) => AssociationEdge({ ...props, ...setterProperty }),
-        composition: (props) => CompositionEdge({ ...props, ...setterProperty }),
+        aggregation: (props) =>
+          AggregationEdge({ ...props, ...setterProperty }),
+        association: (props) =>
+          AssociationEdge({ ...props, ...setterProperty }),
+        composition: (props) =>
+          CompositionEdge({ ...props, ...setterProperty }),
         dependency: (props) => DependencyEdge({ ...props, ...setterProperty }),
-        implementation: (props) => ImplementationEdge({ ...props, ...setterProperty }),
-        inheritance: (props) => InheritanceEdge({ ...props, ...setterProperty })
-      }
+        implementation: (props) =>
+          ImplementationEdge({ ...props, ...setterProperty }),
+        inheritance: (props) =>
+          InheritanceEdge({ ...props, ...setterProperty }),
+      };
     }, []);
   }
 
   return (
-    <div ref={ctx.reactFlowWrapper}
+    <div
+      ref={ctx.reactFlowWrapper}
       onContextMenu={(e) => {
         e.preventDefault();
         ctx.setRightClicked(true);
 
-        const reactFlowBounds = ctx.reactFlowWrapper.current?.getBoundingClientRect();
+        const reactFlowBounds =
+          ctx.reactFlowWrapper.current?.getBoundingClientRect();
 
         if (!ctx.reactFlowInstance || !reactFlowBounds) {
           return;
@@ -263,56 +309,70 @@ function App() {
 
         const position = ctx.reactFlowInstance.screenToFlowPosition({
           x: e.clientX - reactFlowBounds.left,
-          y: e.clientY - reactFlowBounds.top
+          y: e.clientY - reactFlowBounds.top,
         });
 
         ctx.setRelativeMouseCoordinate(position);
         ctx.setMouseCoordinate({ x: e.clientX, y: e.clientY });
-      }} style={{ height: "100%" }}>
+      }}
+      style={{ height: "100%" }}
+    >
       <>
         {ctx.rightClicked && ctx.isMenuContextActive && (
           <ContextMenu top={ctx.mouseCoordinate.y} left={ctx.mouseCoordinate.x}>
             <>
               <ul>
-                <li onClick={() => {
-                  ctx.setNodes((oldNodes) => {
-                    const newNode = new Trait(
-                      ctx.generateNodeId(),
-                      ctx.DEFAULT_NODE_NAME,
-                      ctx.DEFAULT_NODE_METHODS,
-                      ctx.DEFAULT_NODE_FIELDS,
-                      ctx.relativeMouseCoordinate.x,
-                      ctx.relativeMouseCoordinate.y
-                    );
-                    return [...oldNodes, newNode];
-                  });
-                }}>Add Trait</li>
-                <li onClick={() => {
-                  ctx.setNodes((oldNodes) => {
-                    const newNode = new AbstractClass(
-                      ctx.generateNodeId(),
-                      ctx.DEFAULT_NODE_NAME,
-                      ctx.DEFAULT_NODE_METHODS,
-                      ctx.DEFAULT_NODE_FIELDS,
-                      ctx.relativeMouseCoordinate.x,
-                      ctx.relativeMouseCoordinate.y
-                    );
-                    return [...oldNodes, newNode];
-                  });
-                }}>Add Abstract Class</li>
-                <li onClick={() => {
-                  ctx.setNodes((oldNodes) => {
-                    const newNode = new ConcreteClass(
-                      ctx.generateNodeId(),
-                      ctx.DEFAULT_NODE_NAME,
-                      ctx.DEFAULT_NODE_METHODS,
-                      ctx.DEFAULT_NODE_FIELDS,
-                      ctx.relativeMouseCoordinate.x,
-                      ctx.relativeMouseCoordinate.y
-                    );
-                    return [...oldNodes, newNode];
-                  });
-                }}>Add Concrete Class</li>
+                <li
+                  onClick={() => {
+                    ctx.setNodes((oldNodes) => {
+                      const newNode = new Trait(
+                        ctx.generateNodeId(),
+                        ctx.DEFAULT_NODE_NAME,
+                        ctx.DEFAULT_NODE_METHODS,
+                        ctx.DEFAULT_NODE_FIELDS,
+                        ctx.relativeMouseCoordinate.x,
+                        ctx.relativeMouseCoordinate.y
+                      );
+                      return [...oldNodes, newNode];
+                    });
+                  }}
+                >
+                  Add Trait
+                </li>
+                <li
+                  onClick={() => {
+                    ctx.setNodes((oldNodes) => {
+                      const newNode = new AbstractClass(
+                        ctx.generateNodeId(),
+                        ctx.DEFAULT_NODE_NAME,
+                        ctx.DEFAULT_NODE_METHODS,
+                        ctx.DEFAULT_NODE_FIELDS,
+                        ctx.relativeMouseCoordinate.x,
+                        ctx.relativeMouseCoordinate.y
+                      );
+                      return [...oldNodes, newNode];
+                    });
+                  }}
+                >
+                  Add Abstract Class
+                </li>
+                <li
+                  onClick={() => {
+                    ctx.setNodes((oldNodes) => {
+                      const newNode = new ConcreteClass(
+                        ctx.generateNodeId(),
+                        ctx.DEFAULT_NODE_NAME,
+                        ctx.DEFAULT_NODE_METHODS,
+                        ctx.DEFAULT_NODE_FIELDS,
+                        ctx.relativeMouseCoordinate.x,
+                        ctx.relativeMouseCoordinate.y
+                      );
+                      return [...oldNodes, newNode];
+                    });
+                  }}
+                >
+                  Add Concrete Class
+                </li>
               </ul>
             </>
           </ContextMenu>

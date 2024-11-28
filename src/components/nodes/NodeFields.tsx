@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import UMLNode, {
   Visibility,
   type CustomNodeData,
-  type FieldType
+  type FieldType,
 } from "../../model/UMLNode";
 import {
   Accordion,
@@ -16,27 +16,30 @@ import {
   Select,
   TextField,
   Typography,
-  Box
+  Box,
 } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 type NodeFieldsProps = {
   data: CustomNodeData;
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
   drawVisibility: (visibility: Visibility | null) => string;
   expanded: string | false;
-  handlePanelChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
+  handlePanelChange: (
+    panel: string
+  ) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
   editMode: boolean;
   forceUpdate: () => void;
-}
+  setExpanded: (x: string | false) => void;
+};
 
 /** Default field when adding a new one */
 const DEFAULT_NEW_FIELD: FieldType = {
-  name: "",
+  name: "fieldName",
   type: "",
-  visibility: "public"
+  visibility: "public",
 };
 
 const NodeFields = (props: NodeFieldsProps) => {
@@ -47,30 +50,40 @@ const NodeFields = (props: NodeFieldsProps) => {
     expanded,
     handlePanelChange,
     editMode,
-    forceUpdate
+    forceUpdate,
+    setExpanded,
   } = props;
 
   return (
     <>
       <div className="field-container">
-        {!editMode ?
+        {!editMode ? (
           data.fields.map((field: FieldType, id: number) => (
             <p key={`field-${field.name}-${id}`}>
               {drawVisibility(field.visibility)} {field.name}: {field.type}
             </p>
-          )) :
+          ))
+        ) : (
           <>
-            <Button size="small" onClick={() => {
-              setNodes((oldNodes) => {
-                return oldNodes.map((node: UMLNode) => {
-                  if (node.id === data.id) {
-                    node.addField(DEFAULT_NEW_FIELD);
-                  }
-                  return node;
+            <Button
+              size="small"
+              onClick={() => {
+                setNodes((oldNodes) => {
+                  return oldNodes.map((node: UMLNode) => {
+                    if (node.id === data.id) {
+                      node.addField(DEFAULT_NEW_FIELD);
+                    }
+                    return node;
+                  });
                 });
-              });
-              forceUpdate();
-            }} variant="text" startIcon={<AddIcon fontSize="small" />}>Add field</Button>
+                setExpanded(`panel-fields${data.fields.length - 1}`);
+                forceUpdate();
+              }}
+              variant="text"
+              startIcon={<AddIcon fontSize="small" />}
+            >
+              Add field
+            </Button>
 
             {data.fields.map((field: FieldType, i: number) => {
               return (
@@ -87,20 +100,28 @@ const NodeFields = (props: NodeFieldsProps) => {
                         id={`panel-fields-${i}-header`}
                       >
                         <Typography>
-                          {drawVisibility(field.visibility)} {field.name}: {field.type}
+                          {drawVisibility(field.visibility)} {field.name}:{" "}
+                          {field.type}
                         </Typography>
                       </AccordionSummary>
                     </div>
 
-                    <div style={{ width: "fit-content", alignContent: "center" }}>
-                      <IconButton size="small" onClick={() => {
-                        setNodes((oldNodes) => {
-                          const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                          retrievedNode.removeField(field);
-                          return [...oldNodes];
-                        });
-                        forceUpdate();
-                      }}>
+                    <div
+                      style={{ width: "fit-content", alignContent: "center" }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setNodes((oldNodes) => {
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            retrievedNode.removeField(field);
+                            return [...oldNodes];
+                          });
+                          forceUpdate();
+                        }}
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </div>
@@ -116,14 +137,21 @@ const NodeFields = (props: NodeFieldsProps) => {
                         size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const fieldToUpdate = data.fields.find(
+                              (f) => f.name === field.name
+                            );
 
                             if (!fieldToUpdate) {
                               return oldNodes;
                             }
 
-                            retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, name: e.target.value });
+                            retrievedNode.updateField(fieldToUpdate, {
+                              ...fieldToUpdate,
+                              name: e.target.value,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -138,14 +166,21 @@ const NodeFields = (props: NodeFieldsProps) => {
                         size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const fieldToUpdate = data.fields.find(
+                              (f) => f.name === field.name
+                            );
 
                             if (!fieldToUpdate) {
                               return oldNodes;
                             }
 
-                            retrievedNode.updateField(fieldToUpdate, { ...fieldToUpdate, type: e.target.value });
+                            retrievedNode.updateField(fieldToUpdate, {
+                              ...fieldToUpdate,
+                              type: e.target.value,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -166,15 +201,21 @@ const NodeFields = (props: NodeFieldsProps) => {
                         size="small"
                         onChange={(e) => {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const fieldToUpdate = data.fields.find((f) => f.name === field.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const fieldToUpdate = data.fields.find(
+                              (f) => f.name === field.name
+                            );
 
                             if (!fieldToUpdate) {
                               return oldNodes;
                             }
 
-                            retrievedNode.updateField(fieldToUpdate,
-                              { ...fieldToUpdate, visibility: e.target.value as Visibility });
+                            retrievedNode.updateField(fieldToUpdate, {
+                              ...fieldToUpdate,
+                              visibility: e.target.value as Visibility,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -187,13 +228,13 @@ const NodeFields = (props: NodeFieldsProps) => {
                     </FormControl>
                   </AccordionDetails>
                 </Accordion>
-              )
+              );
             })}
           </>
-        }
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
 export default NodeFields;

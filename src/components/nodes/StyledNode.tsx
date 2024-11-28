@@ -1,9 +1,4 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useState,
-  useRef
-} from "react";
+import { Dispatch, SetStateAction, useState, useRef } from "react";
 import { Edge, Handle, NodeProps, Position } from "@xyflow/react";
 import UMLNode, { CustomNode, Visibility } from "../../model/UMLNode";
 
@@ -22,10 +17,10 @@ type StyledNodeProps = {
 
 /**
  * Represents a custom node in the canvas.
- * 
+ *
  * @param {StyledNodeProps} props - The properties needed to render the node.
  * @returns {JSX.Element} The node to be rendered in the canvas.
- * 
+ *
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
  */
 const StyledNode = (props: StyledNodeProps): JSX.Element => {
@@ -36,7 +31,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
   const DEFAULT_HANDLE_STYLE = {
     width: 10,
     height: 10,
-  }
+  };
 
   /** Whether the current node is in edit mode or not */
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -50,7 +45,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
 
   /**
    * Translates the visibility attribute into its symbol using pattern matching.
-   * 
+   *
    * @param {Visibility | null} visibility - The visibility of the field or method.
    * @returns {string} The symbol that represents the visibility.
    */
@@ -67,20 +62,24 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
     }
   };
 
-  const handlePanelChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-    setExpanded(newExpanded ? panel : false);
-  };
+  const handlePanelChange =
+    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      setExpanded(newExpanded ? panel : false);
+    };
 
   const forceUpdate = () => setLastChange(new Date());
 
   /**
    * Creates an array of handles to be rendered in a certain position of the node.
-   * 
+   *
    * @param {Position} position - The position of the handles in the node.
    * @param {number} numHandles - The number of handles to be created.
    * @returns {JSX.Element[]} An array of handles to be rendered.
    */
-  const createMultipleHandles = (position: Position, numHandles: number): JSX.Element[] => {
+  const createMultipleHandles = (
+    position: Position,
+    numHandles: number
+  ): JSX.Element[] => {
     let identifier: string;
     let handles: JSX.Element[] = [];
 
@@ -101,35 +100,39 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
 
     /**
      * Generates equispaced handles given a certain position in the node.
-     * 
-     * @param {number} id The identifier in the handle line. 
+     *
+     * @param {number} id The identifier in the handle line.
      * @returns {React.CSSProperties} The style of the handle.
      */
     const defineStyle = (id: number): React.CSSProperties => ({
       ...DEFAULT_HANDLE_STYLE,
       visibility: mouseHover ? "visible" : "hidden",
-      top: position === Position.Left || position === Position.Right
-        ? `${100 * id / (numHandles + 1)}%`
-        : (position === Position.Top
+      top:
+        position === Position.Left || position === Position.Right
+          ? `${(100 * id) / (numHandles + 1)}%`
+          : position === Position.Top
           ? 0
-          : 'auto'),
-      left: position === Position.Top || position === Position.Bottom
-        ? `${100 * id / (numHandles + 1)}%`
-        : 'auto'
+          : "auto",
+      left:
+        position === Position.Top || position === Position.Bottom
+          ? `${(100 * id) / (numHandles + 1)}%`
+          : "auto",
     });
 
     for (let i = 1; i <= numHandles; i++) {
-      handles.push(<Handle
-        key={`${identifier}-handle-${i}`}
-        type="source"
-        position={position}
-        id={`${identifier}-handle-${i}`}
-        style={defineStyle(i)}
-      />);
+      handles.push(
+        <Handle
+          key={`${identifier}-handle-${i}`}
+          type="source"
+          position={position}
+          id={`${identifier}-handle-${i}`}
+          style={defineStyle(i)}
+        />
+      );
     }
 
     return handles;
-  }
+  };
 
   /** Common props to be passed to each section of the node. */
   const commonSectionProps = {
@@ -137,7 +140,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
     setNodes,
     editMode,
     forceUpdate,
-    mouseHover
+    mouseHover,
   };
 
   return (
@@ -166,6 +169,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
             drawVisibility={drawVisibility}
             expanded={expanded}
             handlePanelChange={handlePanelChange}
+            setExpanded={setExpanded}
           />
 
           <NodeMethods
@@ -173,11 +177,12 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
             drawVisibility={drawVisibility}
             expanded={expanded}
             handlePanelChange={handlePanelChange}
+            setExpanded={setExpanded}
           />
         </div>
       </div>
     </>
   );
-}
+};
 
 export default StyledNode;

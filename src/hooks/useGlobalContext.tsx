@@ -15,15 +15,21 @@ type GlobalContext = {
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   rightClicked: boolean;
   setRightClicked: React.Dispatch<React.SetStateAction<boolean>>;
-  mouseCoordinate: { x: number, y: number };
-  setMouseCoordinate: React.Dispatch<React.SetStateAction<{ x: number, y: number }>>;
+  mouseCoordinate: { x: number; y: number };
+  setMouseCoordinate: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }>
+  >;
   isMenuContextActive: boolean;
   setIsMenuContextActive: React.Dispatch<React.SetStateAction<boolean>>;
   reactFlowWrapper: React.RefObject<HTMLDivElement>;
   reactFlowInstance: ReactFlowInstance | null;
-  setReactFlowInstance: React.Dispatch<React.SetStateAction<ReactFlowInstance | null>>;
-  relativeMouseCoordinate: { x: number, y: number };
-  setRelativeMouseCoordinate: React.Dispatch<React.SetStateAction<{ x: number, y: number }>>;
+  setReactFlowInstance: React.Dispatch<
+    React.SetStateAction<ReactFlowInstance | null>
+  >;
+  relativeMouseCoordinate: { x: number; y: number };
+  setRelativeMouseCoordinate: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }>
+  >;
 };
 
 /**
@@ -35,7 +41,7 @@ const useGlobalContext = (): GlobalContext => {
   const INITIAL_NODES: UMLNode[] = [];
   const INITIAL_EDGES: Edge[] = [];
 
-  const DEFAULT_NODE_NAME: string = "ClassName";
+  const DEFAULT_NODE_NAME: string = "Name";
   const DEFAULT_NODE_FIELDS: FieldType[] = [];
   const DEFAULT_NODE_METHODS: MethodType[] = [];
 
@@ -44,20 +50,18 @@ const useGlobalContext = (): GlobalContext => {
 
   const getNodes = () => {
     return nodes;
-  }
+  };
 
   const generateNodeId = () => {
     return nodes.length + 1;
-  }
+  };
 
   // Allows me to disable the context menu in some components
   const [isMenuContextActive, setIsMenuContextActive] = useState<boolean>(true);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [
-    reactFlowInstance,
-    setReactFlowInstance
-  ] = useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
 
   const {
     rightClicked,
@@ -65,7 +69,7 @@ const useGlobalContext = (): GlobalContext => {
     mouseCoordinate,
     setMouseCoordinate,
     relativeMouseCoordinate,
-    setRelativeMouseCoordinate
+    setRelativeMouseCoordinate,
   } = useCanvasRightClick();
 
   return {
@@ -88,11 +92,8 @@ const useGlobalContext = (): GlobalContext => {
     reactFlowInstance,
     setReactFlowInstance,
     relativeMouseCoordinate,
-    setRelativeMouseCoordinate
+    setRelativeMouseCoordinate,
   };
 };
 
-export {
-  useGlobalContext,
-  type GlobalContext
-};
+export { useGlobalContext, type GlobalContext };

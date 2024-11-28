@@ -1,9 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Edge, NodeProps } from "@xyflow/react";
-import UMLNode, {
-  CustomNode,
-  CustomNodeData
-} from "../../model/UMLNode";
+import UMLNode, { CustomNode, CustomNodeData } from "../../model/UMLNode";
 
 import Trait from "../../model/Trait";
 import AbstractClass from "../../model/AbstractClass";
@@ -16,11 +13,11 @@ import {
   MenuItem,
   Select,
   TextField,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 
-import LogoutIcon from '@mui/icons-material/Logout';
-import EditIcon from '@mui/icons-material/Edit';
+import LogoutIcon from "@mui/icons-material/Logout";
+import EditIcon from "@mui/icons-material/Edit";
 import { Delete } from "@mui/icons-material";
 
 type NodeHeaderProps = {
@@ -43,17 +40,18 @@ const NodeHeader = (props: NodeHeaderProps) => {
     setNodes,
     setEdges,
     forceUpdate,
-    mouseHover
+    mouseHover,
   } = props;
 
   return (
     <>
-      <div className="title-container">
+      <div className={`title-container ${node.type}`}>
         {data.additionalText && data.additionalText.length > 0 && (
           <p className="additional-text-paragraph">{data.additionalText}</p>
         )}
-        {!editMode ?
-          <p className={data.styleClass}>{data.name}</p> :
+        {!editMode ? (
+          <p className={data.styleClass}>{data.name}</p>
+        ) : (
           <>
             <div className="name-type-edit-container">
               <TextField
@@ -65,7 +63,9 @@ const NodeHeader = (props: NodeHeaderProps) => {
                 size="small"
                 onChange={(e) => {
                   setNodes((oldNodes) => {
-                    const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
+                    const [retrievedNode] = oldNodes.filter(
+                      (n: UMLNode) => n.id === data.id
+                    );
                     retrievedNode.updateName(e.target.value);
                     return [...oldNodes];
                   });
@@ -83,8 +83,7 @@ const NodeHeader = (props: NodeHeaderProps) => {
                   label="Change Type"
                   size="small"
                   onChange={(e) => {
-                    if (e.target.value === node.type)
-                      return;
+                    if (e.target.value === node.type) return;
 
                     let newNode: UMLNode | null = null;
                     switch (e.target.value) {
@@ -95,7 +94,8 @@ const NodeHeader = (props: NodeHeaderProps) => {
                           data.methods,
                           data.fields,
                           node.positionAbsoluteX,
-                          node.positionAbsoluteY);
+                          node.positionAbsoluteY
+                        );
                         break;
                       case "abstractClass":
                         newNode = new AbstractClass(
@@ -104,7 +104,8 @@ const NodeHeader = (props: NodeHeaderProps) => {
                           data.methods,
                           data.fields,
                           node.positionAbsoluteX,
-                          node.positionAbsoluteY);
+                          node.positionAbsoluteY
+                        );
                         break;
                       case "concreteClass":
                         newNode = new ConcreteClass(
@@ -113,12 +114,15 @@ const NodeHeader = (props: NodeHeaderProps) => {
                           data.methods,
                           data.fields,
                           node.positionAbsoluteX,
-                          node.positionAbsoluteY);
+                          node.positionAbsoluteY
+                        );
                         break;
                     }
 
                     setNodes((oldNodes) => {
-                      const currentIndex = oldNodes.findIndex((n) => n.id === data.id);
+                      const currentIndex = oldNodes.findIndex(
+                        (n) => n.id === data.id
+                      );
                       // Only proceeds if the node is found
                       if (currentIndex !== -1 && newNode) {
                         oldNodes[currentIndex] = newNode;
@@ -136,50 +140,57 @@ const NodeHeader = (props: NodeHeaderProps) => {
               </FormControl>
             </div>
           </>
-        }
+        )}
 
         <div style={{ position: "absolute", top: 0, right: 0 }}>
-          {mouseHover &&
+          {mouseHover && (
             <>
-              {editMode ?
+              {editMode ? (
                 <Tooltip placement="top" title="Exit Edit mode" arrow>
                   <IconButton size="small" onClick={() => setEditMode(false)}>
                     <LogoutIcon fontSize="small" />
                   </IconButton>
-                </Tooltip> :
+                </Tooltip>
+              ) : (
                 <Tooltip placement="top" title="Enter Edit mode" arrow>
                   <IconButton size="small" onClick={() => setEditMode(true)}>
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
-              }
+              )}
             </>
-          }
+          )}
         </div>
 
         <div style={{ position: "absolute", top: 0, left: 0 }}>
-          {mouseHover &&
+          {mouseHover && (
             <Tooltip placement="top" title="Delete Node" arrow>
-              <IconButton size="small" onClick={() => {
-                // We want to delete all the edges that involves this node.
-                setEdges((oldEdges) => {
-                  return oldEdges.filter((edge) => {
-                    return edge.source !== String(data.id) && edge.target !== String(data.id);
+              <IconButton
+                size="small"
+                onClick={() => {
+                  // We want to delete all the edges that involves this node.
+                  setEdges((oldEdges) => {
+                    return oldEdges.filter((edge) => {
+                      return (
+                        edge.source !== String(data.id) &&
+                        edge.target !== String(data.id)
+                      );
+                    });
                   });
-                });
 
-                setNodes((oldNodes) => {
-                  return oldNodes.filter((node) => node.id !== data.id);
-                });
-              }}>
+                  setNodes((oldNodes) => {
+                    return oldNodes.filter((node) => node.id !== data.id);
+                  });
+                }}
+              >
                 <Delete fontSize="small" />
               </IconButton>
             </Tooltip>
-          }
+          )}
         </div>
       </div>
     </>
   );
-}
+};
 
 export default NodeHeader;

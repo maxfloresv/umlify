@@ -3,7 +3,7 @@ import UMLNode, {
   CustomNodeData,
   MethodType,
   Type,
-  Visibility
+  Visibility,
 } from "../../model/UMLNode";
 import {
   Accordion,
@@ -22,30 +22,33 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Chip
+  Chip,
 } from "@mui/material";
 
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 type NodeMethodsProps = {
   data: CustomNodeData;
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
   drawVisibility: (visibility: Visibility | null) => string;
   expanded: string | false;
-  handlePanelChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
+  handlePanelChange: (
+    panel: string
+  ) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
   editMode: boolean;
   forceUpdate: () => void;
-}
+  setExpanded: (x: string | false) => void;
+};
 
 const DEFAULT_NEW_METHOD: MethodType = {
-  name: "",
+  name: "methodName",
   domType: [],
   codType: "",
   visibility: "public",
-  abstract: false
-}
+  abstract: false,
+};
 
 const NodeMethods = (props: NodeMethodsProps) => {
   const {
@@ -55,16 +58,20 @@ const NodeMethods = (props: NodeMethodsProps) => {
     expanded,
     handlePanelChange,
     editMode,
-    forceUpdate
+    forceUpdate,
+    setExpanded,
   } = props;
 
   return (
     <>
       <div className="method-container">
-        {!editMode ?
+        {!editMode ? (
           data.methods.map((method: MethodType, id: number) => {
             return (
-              <p key={`method-${method.name}-${id}`} style={method.abstract ? { fontStyle: "italic" } : {}}>
+              <p
+                key={`method-${method.name}-${id}`}
+                style={method.abstract ? { fontStyle: "italic" } : {}}
+              >
                 {drawVisibility(method.visibility)} {method.name}
                 {"("}
                 {method.domType.join(", ")}
@@ -72,20 +79,29 @@ const NodeMethods = (props: NodeMethodsProps) => {
                 {method.codType ? method.codType : "Unit"}
               </p>
             );
-          }) :
+          })
+        ) : (
           <>
-            <Button size="small" onClick={() => {
-              setNodes((oldNodes) => {
-                return oldNodes.map((node: UMLNode) => {
-                  if (node.id === data.id) {
-                    node.addMethod(DEFAULT_NEW_METHOD);
-                  }
+            <Button
+              size="small"
+              onClick={() => {
+                setNodes((oldNodes) => {
+                  return oldNodes.map((node: UMLNode) => {
+                    if (node.id === data.id) {
+                      node.addMethod(DEFAULT_NEW_METHOD);
+                    }
 
-                  return node;
+                    return node;
+                  });
                 });
-              });
-              forceUpdate();
-            }} variant="text" startIcon={<AddIcon fontSize="small" />}>Add method</Button>
+                setExpanded(`panel-methods${data.methods.length - 1}`);
+                forceUpdate();
+              }}
+              variant="text"
+              startIcon={<AddIcon fontSize="small" />}
+            >
+              Add method
+            </Button>
 
             {data.methods.map((method: MethodType, i: number) => {
               return (
@@ -111,15 +127,22 @@ const NodeMethods = (props: NodeMethodsProps) => {
                       </AccordionSummary>
                     </div>
 
-                    <div style={{ width: "fit-content", alignContent: "center" }}>
-                      <IconButton size="small" onClick={() => {
-                        setNodes((oldNodes) => {
-                          const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                          retrievedNode.removeMethod(method);
-                          return [...oldNodes];
-                        });
-                        forceUpdate();
-                      }}>
+                    <div
+                      style={{ width: "fit-content", alignContent: "center" }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setNodes((oldNodes) => {
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            retrievedNode.removeMethod(method);
+                            return [...oldNodes];
+                          });
+                          forceUpdate();
+                        }}
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </div>
@@ -135,14 +158,21 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         defaultValue={method.name}
                         onChange={(e) => {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const methodToUpdate = data.methods.find((m) => m.name === method.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const methodToUpdate = data.methods.find(
+                              (m) => m.name === method.name
+                            );
 
                             if (!methodToUpdate) {
                               return oldNodes;
                             }
 
-                            retrievedNode.updateMethod(methodToUpdate, { ...methodToUpdate, name: e.target.value });
+                            retrievedNode.updateMethod(methodToUpdate, {
+                              ...methodToUpdate,
+                              name: e.target.value,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -157,14 +187,21 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         defaultValue={method.codType}
                         onChange={(e) => {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const methodToUpdate = data.methods.find((m) => m.name === method.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const methodToUpdate = data.methods.find(
+                              (m) => m.name === method.name
+                            );
 
                             if (!methodToUpdate) {
                               return oldNodes;
                             }
 
-                            retrievedNode.updateMethod(methodToUpdate, { ...methodToUpdate, codType: e.target.value });
+                            retrievedNode.updateMethod(methodToUpdate, {
+                              ...methodToUpdate,
+                              codType: e.target.value,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -174,7 +211,7 @@ const NodeMethods = (props: NodeMethodsProps) => {
 
                     <Autocomplete
                       size="small"
-                      sx={{ maxWidth: 'inherit', marginBottom: "20px" }}
+                      sx={{ maxWidth: "inherit", marginBottom: "20px" }}
                       multiple
                       id="method-tags-standard"
                       options={[]}
@@ -186,8 +223,12 @@ const NodeMethods = (props: NodeMethodsProps) => {
                       onChange={(_, newValue: readonly string[]) => {
                         if (newValue && newValue.length >= 0) {
                           setNodes((oldNodes) => {
-                            const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                            const methodToUpdate = data.methods.find((m) => m.name === method.name);
+                            const [retrievedNode] = oldNodes.filter(
+                              (n: UMLNode) => n.id === data.id
+                            );
+                            const methodToUpdate = data.methods.find(
+                              (m) => m.name === method.name
+                            );
 
                             if (!methodToUpdate) {
                               return oldNodes;
@@ -195,8 +236,10 @@ const NodeMethods = (props: NodeMethodsProps) => {
 
                             // As newValue is read-only, we pass an array copy
                             const newDomType: Type[] = [...newValue];
-                            retrievedNode.updateMethod(methodToUpdate,
-                              { ...methodToUpdate, domType: newDomType });
+                            retrievedNode.updateMethod(methodToUpdate, {
+                              ...methodToUpdate,
+                              domType: newDomType,
+                            });
                             return [...oldNodes];
                           });
                           forceUpdate();
@@ -206,7 +249,13 @@ const NodeMethods = (props: NodeMethodsProps) => {
                         value.map((option: string, index: number) => {
                           const { key, ...tagProps } = getTagProps({ index });
                           return (
-                            <Chip size="small" variant="outlined" label={option} key={key} {...tagProps} />
+                            <Chip
+                              size="small"
+                              variant="outlined"
+                              label={option}
+                              key={key}
+                              {...tagProps}
+                            />
                           );
                         })
                       }
@@ -219,13 +268,18 @@ const NodeMethods = (props: NodeMethodsProps) => {
                             label="Method Domain Type(s)"
                             placeholder="Type and press Enter"
                           />
-                        )
+                        );
                       }}
                     />
 
-                    <div className="two-cols-container" style={{ marginBottom: 0 }}>
+                    <div
+                      className="two-cols-container"
+                      style={{ marginBottom: 0 }}
+                    >
                       <FormControl size="small" fullWidth>
-                        <InputLabel size="small" id={`method-${i}-visibility`}>Visibility</InputLabel>
+                        <InputLabel size="small" id={`method-${i}-visibility`}>
+                          Visibility
+                        </InputLabel>
                         <Select
                           size="small"
                           labelId={`method-${i}-visibility`}
@@ -235,15 +289,21 @@ const NodeMethods = (props: NodeMethodsProps) => {
                           label="Visibility"
                           onChange={(e) => {
                             setNodes((oldNodes) => {
-                              const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                              const methodToUpdate = data.methods.find((m) => m.name === method.name);
+                              const [retrievedNode] = oldNodes.filter(
+                                (n: UMLNode) => n.id === data.id
+                              );
+                              const methodToUpdate = data.methods.find(
+                                (m) => m.name === method.name
+                              );
 
                               if (!methodToUpdate) {
                                 return oldNodes;
                               }
 
-                              retrievedNode.updateMethod(methodToUpdate,
-                                { ...methodToUpdate, visibility: e.target.value as Visibility });
+                              retrievedNode.updateMethod(methodToUpdate, {
+                                ...methodToUpdate,
+                                visibility: e.target.value as Visibility,
+                              });
                               return [...oldNodes];
                             });
                             forceUpdate();
@@ -263,15 +323,21 @@ const NodeMethods = (props: NodeMethodsProps) => {
                               checked={method.abstract}
                               onChange={(_) => {
                                 setNodes((oldNodes) => {
-                                  const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
-                                  const methodToUpdate = data.methods.find((m) => m.name === method.name);
+                                  const [retrievedNode] = oldNodes.filter(
+                                    (n: UMLNode) => n.id === data.id
+                                  );
+                                  const methodToUpdate = data.methods.find(
+                                    (m) => m.name === method.name
+                                  );
 
                                   if (!methodToUpdate) {
                                     return oldNodes;
                                   }
 
-                                  retrievedNode.updateMethod(methodToUpdate,
-                                    { ...methodToUpdate, abstract: !method.abstract });
+                                  retrievedNode.updateMethod(methodToUpdate, {
+                                    ...methodToUpdate,
+                                    abstract: !method.abstract,
+                                  });
                                   return [...oldNodes];
                                 });
                                 forceUpdate();
@@ -284,13 +350,13 @@ const NodeMethods = (props: NodeMethodsProps) => {
                     </div>
                   </AccordionDetails>
                 </Accordion>
-              )
+              );
             })}
           </>
-        }
+        )}
       </div>
     </>
   );
-}
+};
 
 export default NodeMethods;

@@ -14,7 +14,8 @@ p {
   text-align: center;
 }
 
-.trait-paragraph, .concrete-paragraph {
+.trait-paragraph,
+.concrete-paragraph {
   font-weight: bold;
   text-align: center;
 }
