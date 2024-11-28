@@ -38,7 +38,6 @@ const UploadJSON = ({ setNodes, setEdges }: UploadJSONProps): JSX.Element => {
       const contents = e.target?.result as string;
       const json = JSON.parse(contents);
 
-      // TODO: Parse input json (current: assume that the input is well-formed) and set nodes and edges
       let nodes: UMLNode[] = [];
       for (let node of json.nodes) {
         switch (node.classType) {
