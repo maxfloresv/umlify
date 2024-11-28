@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { NodeProps } from "@xyflow/react";
+import { Edge, NodeProps } from "@xyflow/react";
 import UMLNode, {
   CustomNode,
   CustomNodeData
@@ -21,6 +21,7 @@ import {
 
 import LogoutIcon from '@mui/icons-material/Logout';
 import EditIcon from '@mui/icons-material/Edit';
+import { Delete } from "@mui/icons-material";
 
 type NodeHeaderProps = {
   data: CustomNodeData;
@@ -28,6 +29,7 @@ type NodeHeaderProps = {
   editMode: boolean;
   setEditMode: Dispatch<SetStateAction<boolean>>;
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
+  setEdges: Dispatch<SetStateAction<Edge[]>>;
   forceUpdate: () => void;
   mouseHover: boolean;
 };
@@ -39,6 +41,7 @@ const NodeHeader = (props: NodeHeaderProps) => {
     editMode,
     setEditMode,
     setNodes,
+    setEdges,
     forceUpdate,
     mouseHover
   } = props;
@@ -140,17 +143,38 @@ const NodeHeader = (props: NodeHeaderProps) => {
             <>
               {editMode ?
                 <Tooltip placement="top" title="Exit Edit mode" arrow>
-                  <IconButton onClick={() => setEditMode(false)}>
-                    <LogoutIcon />
+                  <IconButton size="small" onClick={() => setEditMode(false)}>
+                    <LogoutIcon fontSize="small" />
                   </IconButton>
                 </Tooltip> :
                 <Tooltip placement="top" title="Enter Edit mode" arrow>
-                  <IconButton onClick={() => setEditMode(true)}>
-                    <EditIcon />
+                  <IconButton size="small" onClick={() => setEditMode(true)}>
+                    <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
               }
             </>
+          }
+        </div>
+
+        <div style={{ position: "absolute", top: 0, left: 0 }}>
+          {mouseHover &&
+            <Tooltip placement="top" title="Delete Node" arrow>
+              <IconButton size="small" onClick={() => {
+                // We want to delete all the edges that involves this node.
+                setEdges((oldEdges) => {
+                  return oldEdges.filter((edge) => {
+                    return edge.source !== String(data.id) && edge.target !== String(data.id);
+                  });
+                });
+
+                setNodes((oldNodes) => {
+                  return oldNodes.filter((node) => node.id !== data.id);
+                });
+              }}>
+                <Delete fontSize="small" />
+              </IconButton>
+            </Tooltip>
           }
         </div>
       </div>
