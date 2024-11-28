@@ -4,7 +4,7 @@ import {
   useState,
   useRef
 } from "react";
-import { Handle, NodeProps, Position } from "@xyflow/react";
+import { Edge, Handle, NodeProps, Position } from "@xyflow/react";
 import UMLNode, { CustomNode, Visibility } from "../../model/UMLNode";
 
 import NodeFields from "./NodeFields";
@@ -16,6 +16,7 @@ import "../styles/containers.css";
 
 type StyledNodeProps = {
   setNodes: Dispatch<SetStateAction<UMLNode[]>>;
+  setEdges: Dispatch<SetStateAction<Edge[]>>;
   node: NodeProps<CustomNode>;
 };
 
@@ -28,7 +29,7 @@ type StyledNodeProps = {
  * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
  */
 const StyledNode = (props: StyledNodeProps): JSX.Element => {
-  const { setNodes, node } = props;
+  const { setNodes, setEdges, node } = props;
   const { data } = node;
   /** Defines the handles for each side of the node */
   const LEFT_RIGHT_HANDLES = 3;
@@ -156,6 +157,7 @@ const StyledNode = (props: StyledNodeProps): JSX.Element => {
           <NodeHeader
             {...commonSectionProps}
             node={node}
+            setEdges={setEdges}
             setEditMode={setEditMode}
           />
 
