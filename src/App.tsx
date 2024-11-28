@@ -1,4 +1,3 @@
-/** React & Reactflow imports */
 import { useEffect, useCallback, useMemo, SetStateAction, Dispatch } from "react";
 import {
   ReactFlow,
@@ -8,26 +7,20 @@ import {
   type Edge,
   type OnNodesChange,
   type OnEdgesChange,
-  type OnConnect,
+  type OnConnectEnd,
   applyEdgeChanges,
   applyNodeChanges,
   addEdge,
   NodeTypes,
   NodeProps,
-  MarkerType,
   EdgeTypes,
-  OnConnectEnd,
   ConnectionMode,
+  OnNodesDelete,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-/** Custom styles imports */
 import ContextMenu from "./styles/menu";
 
-/** Material UI imports */
-import Button from "@mui/material/Button";
-
-/** Custom components imports */
 import StyledNode from "./components/nodes/StyledNode";
 import AggregationEdge from "./components/edges/AggregationEdge";
 import AssociationEdge from "./components/edges/AssociationEdge";
@@ -36,13 +29,11 @@ import DependencyEdge from "./components/edges/DependencyEdge";
 import ImplementationEdge from "./components/edges/ImplementationEdge";
 import InheritanceEdge from "./components/edges/InheritanceEdge";
 
-/** Custom hooks imports */
 import { useGlobalContext, type GlobalContext } from "./hooks/useGlobalContext";
 import UMLNode, { CustomNode, EdgeType } from "./model/UMLNode";
 import Trait from "./model/Trait";
 import AbstractClass from "./model/AbstractClass";
 import ConcreteClass from "./model/ConcreteClass";
-import InvalidConnectionException from "./exceptions/InvalidConnectionException";
 import ExportButton from "./components/ExportButton";
 import DownloadJSON from "./components/DownloadJSON";
 import UploadJSON from "./components/UploadJSON";
@@ -61,19 +52,22 @@ function App() {
   }, []);
 
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) =>
-      ctx.setNodes((nodes) => {
-        const nodeList = nodes.map((n) => n.getNode());
-        // We can only apply changes to a Node[] type.
-        const modifiedNodes = applyNodeChanges(changes, nodeList);
+    (changes) => {
+      if (changes.length > 0 && changes[0].type !== "remove") {
+        ctx.setNodes((nodes) => {
+          const nodeList = nodes.map((n) => n.getNode());
+          // We can only apply changes to a Node[] type.
+          const modifiedNodes = applyNodeChanges(changes, nodeList);
 
-        // Update each node with its correspondant modified node.
-        for (let i = 0; i < nodes.length; i++) {
-          nodes[i].updatePosition(modifiedNodes[i]);
-        }
+          // Update each node with its correspondant modified node.
+          for (let i = 0; i < nodes.length; i++) {
+            nodes[i].updatePosition(modifiedNodes[i]);
+          }
 
-        return [...nodes];
-      }),
+          return [...nodes];
+        })
+      }
+    },
     [ctx.setNodes]
   );
 
@@ -83,6 +77,18 @@ function App() {
     }),
     [ctx.setEdges]
   );
+
+  const onNodesDelete: OnNodesDelete = useCallback(
+    (deleted) => {
+      ctx.setNodes((nodes) => {
+        const newNodes = nodes.filter((node) => {
+          return !deleted.map((del) => del.id).includes(String(node.id));
+        });
+
+        return newNodes;
+      });
+    }, [ctx.nodes, ctx.edges]
+  )
 
   /**
    * Applies a set of rules in UML construction to determine the type of edge between two nodes.
@@ -95,6 +101,46 @@ function App() {
     return source.getEdgeType(target);
   }
 
+  /**
+   * Checks if a given type is composed of a target class name or not.
+   * @param {string} type - The type to be checked.
+   * @param {string} target - The target class name.
+   * @returns {boolean} True if the type is composed of the target class name, otherwise false.
+   */
+  function isTypeComposed(type: string, target: string): boolean {
+    let startIndex, endIndex: number | null = null;
+
+    for (let i = 0; i < type.length; i++) {
+      if (type[i] === "[") {
+        startIndex = i;
+      } else if (type[i] === "]") {
+        while (i < type.length) {
+          if (type[i] === "]")
+            endIndex = i;
+
+          i++;
+        }
+      }
+    }
+
+    // There's a [ or ] character missing, so it can't be a composition.
+    if (!startIndex || !endIndex)
+      return false;
+
+    // We don't wanna include the [ and ] characters.
+    const composition = type.slice(startIndex + 1, endIndex);
+    return composition
+      .split(",")
+      .map((type) => type.trim())
+      .includes(target);
+  }
+
+  function setHandleId(handleId: string, targetHandleNumber: number): string {
+    let fixedHandle: string[] = handleId.split("-");
+    fixedHandle[fixedHandle.length - 1] = String(targetHandleNumber);
+    return fixedHandle.join("-");
+  }
+
   const onConnectEnd: OnConnectEnd = (_event, connectionState) => {
     // We can only proceed when the connection is clearly between two nodes.
     if (connectionState.fromNode && connectionState.fromHandle
@@ -104,58 +150,67 @@ function App() {
 
       let nodes: UMLNode[] = ctx.nodes;
 
-      const sourceNode = nodes.find((node) => node.id === Number(sourceId)) as UMLNode;
-      const targetNode = nodes.find((node) => node.id === Number(targetId)) as UMLNode;
+      const sourceNode = nodes.find(
+        (node) => node.id === Number(sourceId)
+      ) as UMLNode;
+      const targetNode = nodes.find(
+        (node) => node.id === Number(targetId)
+      ) as UMLNode;
 
-      let edgeType: EdgeType | null = null;
+      let edgeTypes: { type: EdgeType, id: number }[] = [];
 
       const [targetHandleNumber] = (connectionState.toHandle.id as string)
         .split("-")
         .slice(-1);
 
-      switch (Number(targetHandleNumber)) {
-        case 1:
-          /** The first handle of each position refers to association */
-          const targetName = targetNode.getName();
+      const targetName = targetNode.getName();
+      const sourceFields = sourceNode.getFields();
+      const sourceMethods = sourceNode.getMethods();
 
-          const sourceFields = sourceNode.getFields();
-          const sourceMethods = sourceNode.getMethods();
+      const fieldUses = sourceFields.some((field) => field.type == targetName);
+      const methodUses = sourceMethods.some((method) => {
+        return method.domType.includes(targetName) || method.codType == targetName;
+      });
 
-          const fieldUses = sourceFields.filter((field) => field.type == targetName);
-          const methodUses = sourceMethods.filter((method) => {
-            return method.domType.includes(targetName) || method.codType == targetName;
-          });
-
-          if (fieldUses.length > 0 || methodUses.length > 0) {
-            edgeType = "association"
-          }
-          break;
-        case 2:
-          /** The second handle of each position refers to inheritance or implementation */
-          try {
-            edgeType = defineEdgeType(sourceNode, targetNode);
-          } catch (error) {
-            return;
-          }
-          break;
+      if (fieldUses || methodUses) {
+        edgeTypes.push({ type: "association", id: 1 });
       }
 
-      if (!edgeType)
+      try {
+        let inheritance = defineEdgeType(sourceNode, targetNode);
+        edgeTypes.push({ type: inheritance, id: 2 });
+      } catch {
+        return;
+      }
+
+      const fieldCompositions = sourceFields.some((field) => {
+        return isTypeComposed(field.type, targetName)
+      });
+
+      const methodCompositions = sourceMethods.some((method) => {
+        return isTypeComposed(method.codType as string, targetName)
+          || method.domType.some((type) => isTypeComposed(type, targetName));
+      });
+
+      if (fieldCompositions || methodCompositions) {
+        edgeTypes.push({ type: "aggregation", id: 3 });
+      }
+
+      if (edgeTypes.length === 0)
         return;
 
-      /** This implements correspondency between the source and target handles */
-      let fixedSourceHandle: string[] = (connectionState.fromHandle?.id as string).split("-");
-      fixedSourceHandle[fixedSourceHandle.length - 1] = targetHandleNumber;
-
-      ctx.setEdges((edges) => {
-        return addEdge({
+      let newEdges = ctx.edges;
+      for (let { type, id } of edgeTypes) {
+        newEdges = addEdge({
           source: sourceId,
           target: targetId,
-          sourceHandle: fixedSourceHandle.join("-"),
-          targetHandle: connectionState.toHandle?.id as string,
-          type: edgeType as string
-        }, edges);
-      });
+          sourceHandle: setHandleId(connectionState.fromHandle?.id as string, id),
+          targetHandle: setHandleId(connectionState.toHandle?.id as string, id),
+          type
+        }, newEdges);
+      }
+
+      ctx.setEdges(newEdges);
     }
   };
 
@@ -165,6 +220,7 @@ function App() {
   const createNodeComponent = (ctx: GlobalContext, props: NodeProps<CustomNode>) => (
     <StyledNode
       setNodes={ctx.setNodes}
+      setEdges={ctx.setEdges}
       node={props}
     />
   );
@@ -194,24 +250,25 @@ function App() {
   }
 
   return (
-    <div ref={ctx.reactFlowWrapper} onContextMenu={(e) => {
-      e.preventDefault();
-      ctx.setRightClicked(true);
+    <div ref={ctx.reactFlowWrapper}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        ctx.setRightClicked(true);
 
-      const reactFlowBounds = ctx.reactFlowWrapper.current?.getBoundingClientRect();
+        const reactFlowBounds = ctx.reactFlowWrapper.current?.getBoundingClientRect();
 
-      if (!ctx.reactFlowInstance || !reactFlowBounds) {
-        return;
-      }
+        if (!ctx.reactFlowInstance || !reactFlowBounds) {
+          return;
+        }
 
-      const position = ctx.reactFlowInstance.screenToFlowPosition({
-        x: e.clientX - reactFlowBounds.left,
-        y: e.clientY - reactFlowBounds.top
-      });
+        const position = ctx.reactFlowInstance.screenToFlowPosition({
+          x: e.clientX - reactFlowBounds.left,
+          y: e.clientY - reactFlowBounds.top
+        });
 
-      ctx.setRelativeMouseCoordinate(position);
-      ctx.setMouseCoordinate({ x: e.clientX, y: e.clientY });
-    }} style={{ height: "100%" }}>
+        ctx.setRelativeMouseCoordinate(position);
+        ctx.setMouseCoordinate({ x: e.clientX, y: e.clientY });
+      }} style={{ height: "100%" }}>
       <>
         {ctx.rightClicked && ctx.isMenuContextActive && (
           <ContextMenu top={ctx.mouseCoordinate.y} left={ctx.mouseCoordinate.x}>
@@ -267,6 +324,7 @@ function App() {
           nodeTypes={CustomNodeTypes(ctx)}
           edgeTypes={CustomEdgeTypes(ctx.setEdges)}
           onNodesChange={onNodesChange}
+          onNodesDelete={onNodesDelete}
           onEdgesChange={onEdgesChange}
           onInit={ctx.setReactFlowInstance}
           onConnectEnd={onConnectEnd}
