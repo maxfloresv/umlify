@@ -1,4 +1,4 @@
-import { Edge, Node } from "@xyflow/react";
+import { Node } from "@xyflow/react";
 import Trait from "./Trait";
 import AbstractClass from "./AbstractClass";
 import ConcreteClass from "./ConcreteClass";
@@ -29,7 +29,7 @@ export type CustomNodeData = {
   methods: MethodType[];
   fields: FieldType[];
   styleClass: string;
-  additionalText: string | null;
+  additionalText?: string;
 }
 
 export type CustomNode = Node<CustomNodeData, ClassType>;

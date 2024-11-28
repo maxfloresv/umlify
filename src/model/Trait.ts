@@ -3,11 +3,24 @@ import UMLAbstractClass from "./UMLAbstractClass";
 import UMLNode, { CustomNodeData, EdgeType, FieldType, MethodType } from "./UMLNode";
 import AbstractClass from "./AbstractClass";
 import ConcreteClass from "./ConcreteClass";
-import InvalidConnectionException from "../exceptions/InvalidConnectionException";
 
+/**
+ * Represents a Trait in an UML diagram.
+ * @extends UMLAbstractClass
+ * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
+ */
 class Trait extends UMLAbstractClass {
   node: Node<CustomNodeData, "trait">;
 
+  /**
+   * Create a Trait.
+   * @param {number} id - The node identifier.
+   * @param {string} name - The trait name.
+   * @param {MethodType[]} methods - The methods of the trait.
+   * @param {FieldType[]} fields - The fields of the trait.
+   * @param {number} x - The x coordinate of the trait.
+   * @param {number} y - The y coordinate of the trait.
+   */
   constructor(
     id: number,
     name: string,

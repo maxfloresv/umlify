@@ -5,6 +5,11 @@ import AbstractClass from "./AbstractClass";
 import Trait from "./Trait";
 import InvalidConnectionException from "../exceptions/InvalidConnectionException";
 
+/**
+ * Represents a Concrete Class in an UML diagram.
+ * @extends UMLAbstractClass
+ * @author Máximo Flores Valenzuela <https://github.com/maxfloresv>
+ */
 class ConcreteClass extends UMLAbstractClass {
   node: Node<CustomNodeData, "concreteClass">;
 
@@ -26,8 +31,7 @@ class ConcreteClass extends UMLAbstractClass {
         name: this.name,
         methods: this.methods,
         fields: this.fields,
-        styleClass: "concrete-paragraph",
-        additionalText: null
+        styleClass: "concrete-paragraph"
       },
     };
   }
