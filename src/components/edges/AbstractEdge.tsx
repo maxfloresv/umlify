@@ -126,7 +126,7 @@ export function AbstractEdge({
             id="marker-diamond"
             markerWidth={DIAMOND_FIXED_FACTOR * MARKERS_WIDTH}
             markerHeight={MARKERS_HEIGHT}
-            refX={2.6 * MARKERS_WIDTH}
+            refX={0.8 * MARKERS_WIDTH}
             refY={MARKERS_HEIGHT / 2}
             orient="auto"
           >
