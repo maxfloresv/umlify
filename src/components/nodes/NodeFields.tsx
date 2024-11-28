@@ -60,7 +60,7 @@ const NodeFields = (props: NodeFieldsProps) => {
             </p>
           )) :
           <>
-            <Button onClick={() => {
+            <Button size="small" onClick={() => {
               setNodes((oldNodes) => {
                 return oldNodes.map((node: UMLNode) => {
                   if (node.id === data.id) {
@@ -70,7 +70,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                 });
               });
               forceUpdate();
-            }} variant="text" startIcon={<AddIcon />}>Add field</Button>
+            }} variant="text" startIcon={<AddIcon fontSize="small" />}>Add field</Button>
 
             {data.fields.map((field: FieldType, i: number) => {
               return (
@@ -82,7 +82,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                   <Box sx={{ display: "flex", minWidth: "100%" }}>
                     <div style={{ width: "100%" }}>
                       <AccordionSummary
-                        expandIcon={<ArrowDownwardIcon />}
+                        expandIcon={<ArrowDownwardIcon fontSize="small" />}
                         aria-controls={`panel-fields-${i}-content`}
                         id={`panel-fields-${i}-header`}
                       >
@@ -93,7 +93,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                     </div>
 
                     <div style={{ width: "fit-content", alignContent: "center" }}>
-                      <IconButton onClick={() => {
+                      <IconButton size="small" onClick={() => {
                         setNodes((oldNodes) => {
                           const [retrievedNode] = oldNodes.filter((n: UMLNode) => n.id === data.id);
                           retrievedNode.removeField(field);
@@ -101,7 +101,7 @@ const NodeFields = (props: NodeFieldsProps) => {
                         });
                         forceUpdate();
                       }}>
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </div>
                   </Box>
